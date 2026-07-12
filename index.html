@@ -103,9 +103,28 @@
   .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;
     animation:sp .7s linear infinite;display:inline-block}
   @keyframes sp{to{transform:rotate(360deg)}}
+  .gate{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);z-index:100;
+    display:grid;place-items:center;padding:20px}
+  .gate.hide{display:none}
+  .gate-card{background:#fff;border-radius:16px;box-shadow:var(--shadow);max-width:420px;width:100%;padding:28px;text-align:center}
+  .gate-card .em{font-size:32px}
+  .gate-card h2{margin:6px 0 6px;font-size:20px}
+  .gate-card p{margin:0 0 18px;color:var(--muted);font-size:13.5px;text-align:left}
+  .gate-card input{margin-bottom:14px;text-align:center}
+  .req{color:var(--err)}
 </style>
 </head>
 <body>
+<div class="gate hide" id="gate">
+  <div class="gate-card">
+    <div class="em">🔗</div>
+    <h2>Bienvenue</h2>
+    <p>Avant de commencer, indique ton prénom. Il sera retenu sur cet ordinateur : tu n'auras pas à le remettre la prochaine fois.</p>
+    <input id="gateName" type="text" placeholder="Ton prénom" autocomplete="off">
+    <button class="btn primary block" id="gateBtn">Commencer</button>
+    <div class="msg" id="gateMsg"></div>
+  </div>
+</div>
 <header class="top">
   <div class="top-in">
     <span class="brandmark">🔗</span>
@@ -114,7 +133,7 @@
       <div class="sub">Groupe Tisserin · UTM + lien court + QR code</div>
     </div>
     <div class="who">
-      <label for="who">Ton prénom</label>
+      <label for="who">Ton prénom <span class="req">*</span></label>
       <input id="who" type="text" placeholder="ex. Louise" autocomplete="off">
     </div>
   </div>
@@ -128,30 +147,30 @@
       <div class="card-b">
 
         <div class="field">
-          <label for="brand">Marque</label>
+          <label for="brand">Marque <span class="req">*</span></label>
           <select id="brand"></select>
         </div>
 
         <div class="field">
-          <label for="dest">URL de destination <span class="hint">- la page où tu veux envoyer les gens</span></label>
+          <label for="dest">URL de destination <span class="req">*</span> <span class="hint">- la page où tu veux envoyer les gens</span></label>
           <input id="dest" type="text" placeholder="https://..." spellcheck="false">
         </div>
 
         <div class="row2">
           <div class="field">
-            <label for="source">Source <span class="hint">- d'où vient le clic</span></label>
+            <label for="source">Source <span class="req">*</span> <span class="hint">- d'où vient le clic</span></label>
             <select id="source"></select>
             <input id="sourceOther" type="text" placeholder="autre source (ex. spotify)" style="display:none;margin-top:8px">
           </div>
           <div class="field">
-            <label for="medium">Support <span class="hint">- le format</span></label>
+            <label for="medium">Support <span class="req">*</span> <span class="hint">- le format</span></label>
             <select id="medium"></select>
             <input id="mediumOther" type="text" placeholder="autre support" style="display:none;margin-top:8px">
           </div>
         </div>
 
         <div class="field">
-          <label for="campaign">Campagne / Programme <span class="hint">- le programme concerné</span></label>
+          <label for="campaign">Campagne / Programme <span class="req">*</span> <span class="hint">- le programme concerné</span></label>
           <input id="campaign" type="text" list="programs" placeholder="ex. osmose" spellcheck="false" autocomplete="off">
           <datalist id="programs"></datalist>
         </div>
@@ -324,6 +343,7 @@ async function copy(text){try{await navigator.clipboard.writeText(text);toast("C
 let lastBrandUrl = "";
 function initBrands(){
   const sel=$("brand");
+  const ph=document.createElement("option");ph.value="";ph.textContent="Choisir une marque...";ph.disabled=true;ph.selected=true;sel.appendChild(ph);
   BRANDS.forEach(b=>{const o=document.createElement("option");o.value=b.key;o.textContent=b.label;o.dataset.url=b.url;sel.appendChild(o);});
   // filtre marque historique
   const hb=$("histBrand");
@@ -332,15 +352,15 @@ function initBrands(){
 }
 function applyBrand(){
   const opt=$("brand").selectedOptions[0];
-  const url=opt.dataset.url||"";
-  // ne remplace la destination que si vide ou = ancienne home marque
+  const url=(opt&&opt.dataset.url)||"";
   const dest=$("dest");
-  if(!dest.value.trim() || dest.value.trim()===lastBrandUrl) dest.value=url;
-  lastBrandUrl=url;
+  // ne remplace la destination que si une marque est choisie ET champ vide ou = ancienne home marque
+  if(url){ if(!dest.value.trim() || dest.value.trim()===lastBrandUrl) dest.value=url; lastBrandUrl=url; }
   updatePreview();
 }
 function initSources(){
   const sel=$("source");
+  const ph=document.createElement("option");ph.value="";ph.textContent="Choisir une source...";ph.disabled=true;ph.selected=true;sel.appendChild(ph);
   SOURCES.forEach(g=>{
     const og=document.createElement("optgroup");og.label=g.group;
     g.items.forEach(it=>{const o=document.createElement("option");o.value=it.v;o.textContent=it.l;og.appendChild(o);});
@@ -354,11 +374,12 @@ function initMediums(){
   const sv=$("source").value;
   const sel=$("medium");sel.innerHTML="";
   $("sourceOther").style.display = sv==="__other__" ? "block":"none";
-  let mediums;
+  const ph=document.createElement("option");ph.value="";ph.textContent="Choisir un support...";ph.disabled=true;ph.selected=true;sel.appendChild(ph);
+  let mediums=[];
   if(sv==="__other__"){mediums=Object.keys(M);}
-  else {const src=findSource(sv);mediums=src?src.mediums:[];}
+  else if(sv){const src=findSource(sv);mediums=src?src.mediums:[];}
   mediums.forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=M[m]||m;sel.appendChild(o);});
-  const other=document.createElement("option");other.value="__other__";other.textContent="+ Autre...";sel.appendChild(other);
+  if(mediums.length){const other=document.createElement("option");other.value="__other__";other.textContent="+ Autre...";sel.appendChild(other);}
   onMediumChange();
 }
 function onMediumChange(){
@@ -431,11 +452,13 @@ async function generate(){
   const v=getVals();
   const msg=$("formMsg");msg.className="msg";
   const miss=[];
-  if(!v.base_url)miss.push("URL de destination");
-  if(!v.utm_source)miss.push("Source");
-  if(!v.utm_medium)miss.push("Support");
-  if(!v.utm_campaign)miss.push("Campagne");
-  if(miss.length){msg.className="msg err";msg.textContent="Il manque : "+miss.join(", ");return;}
+  if(!($("who").value||"").trim())miss.push("ton prénom");
+  if(!v.brand)miss.push("la marque");
+  if(!v.base_url)miss.push("l'URL de destination");
+  if(!v.utm_source)miss.push("la source");
+  if(!v.utm_medium)miss.push("le support");
+  if(!v.utm_campaign)miss.push("la campagne");
+  if(miss.length){msg.className="msg err";msg.textContent="Il manque : "+miss.join(", ")+".";return;}
 
   const full=buildFinalUrl(v);
   const btn=$("genBtn");btn.disabled=true;const old=btn.innerHTML;btn.innerHTML='<span class="spin"></span> Génération...';
@@ -536,12 +559,26 @@ $("refreshHist").addEventListener("click",loadHistory);
 $("histBrand").addEventListener("change",loadHistory);
 $("histSearch").addEventListener("input",()=>{clearTimeout(histTimer);histTimer=setTimeout(loadHistory,350);});
 document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>copy(b.dataset.copy==="short"?currentLink.short:currentLink.full));
-// mémoriser le prénom
-$("who").value=localStorage.getItem("utm_who")||"";
-$("who").addEventListener("input",()=>localStorage.setItem("utm_who",$("who").value));
+// mémoriser le prénom (persiste dans le navigateur, comme un cookie permanent)
+$("who").addEventListener("input",()=>localStorage.setItem("utm_who",$("who").value.trim()));
+
+/* ============ ÉCRAN D'ACCUEIL (prénom obligatoire, retenu ensuite) ============ */
+function initGate(){
+  const stored=(localStorage.getItem("utm_who")||"").trim();
+  if(stored){$("who").value=stored;return;}           // déjà connu -> pas d'écran
+  const g=$("gate");g.classList.remove("hide");
+  const submit=()=>{
+    const n=$("gateName").value.trim();
+    if(!n){const m=$("gateMsg");m.className="msg err";m.textContent="Entre ton prénom pour continuer.";return;}
+    localStorage.setItem("utm_who",n);$("who").value=n;g.classList.add("hide");
+  };
+  $("gateBtn").onclick=submit;
+  $("gateName").addEventListener("keydown",e=>{if(e.key==="Enter")submit();});
+  setTimeout(()=>$("gateName").focus(),60);
+}
 
 /* ============ BOOT ============ */
-initBrands();initSources();initPrograms();updatePreview();loadHistory();
+initGate();initBrands();initSources();initPrograms();updatePreview();loadHistory();
 </script>
 </body>
 </html>
