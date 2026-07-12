@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Créateur d'URL trackées - Groupe Tisserin</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>">
+<style>
+  :root{
+    --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#f1f5f9;
+    --card:#ffffff; --accent:#0f766e; --accent-d:#0b5a54; --accent-soft:#ccfbf1;
+    --ok:#15803d; --ok-soft:#dcfce7; --warn:#b45309; --warn-soft:#fef3c7;
+    --err:#b91c1c; --shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px rgba(15,23,42,.06);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent)}
+  header.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line)}
+  .top-in{max-width:1180px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brandmark{font-size:22px}
+  .top h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.01em}
+  .top .sub{color:var(--muted);font-size:12.5px;margin-top:1px}
+  .who{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .who label{font-size:12.5px;color:var(--muted)}
+  .who input{padding:7px 10px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;width:150px;background:#fff}
+  main{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card-h{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .card-h h2{font-size:14.5px;margin:0;font-weight:700}
+  .card-h .step{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;
+    display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+  .card-b{padding:20px}
+  .field{margin-bottom:16px}
+  .field:last-child{margin-bottom:0}
+  .field > label{display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;color:#334155}
+  .field .hint{font-weight:400;color:var(--muted);font-size:11.5px}
+  select,input[type=text],input[type=url],textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
+    border-radius:10px;font-size:14px;background:#fff;color:var(--ink);font-family:inherit}
+  select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:520px){.row2{grid-template-columns:1fr}}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chip{border:1px solid var(--line);background:#f8fafc;border-radius:999px;padding:4px 10px;font-size:12px;
+    cursor:pointer;color:#475569;transition:.12s}
+  .chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .mono{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace}
+  .preview{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:14px 15px;font-size:12.5px;
+    word-break:break-all;line-height:1.6;position:relative;min-height:52px}
+  .preview .k{color:#5eead4}
+  .preview .v{color:#fbbf24}
+  .preview .base{color:#e2e8f0}
+  .btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 15px;
+    border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;transition:.12s;display:inline-flex;
+    align-items:center;gap:7px;justify-content:center}
+  .btn:hover{border-color:#cbd5e1;background:#f8fafc}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-d);border-color:var(--accent-d)}
+  .btn.primary:disabled{opacity:.55;cursor:not-allowed}
+  .btn.block{width:100%}
+  .btn.sm{padding:6px 10px;font-size:12px;border-radius:8px}
+  .toggle{display:flex;align-items:center;gap:9px;font-size:13px;color:#334155;cursor:pointer;user-select:none}
+  .toggle input{width:38px;height:22px;appearance:none;background:#cbd5e1;border-radius:999px;position:relative;
+    cursor:pointer;transition:.15s;flex:none}
+  .toggle input:checked{background:var(--accent)}
+  .toggle input::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;
+    border-radius:50%;transition:.15s}
+  .toggle input:checked::after{transform:translateX(16px)}
+  .result{display:none}
+  .result.show{display:block}
+  .res-line{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1px solid var(--line);
+    border-radius:10px;padding:10px 12px;margin-bottom:10px}
+  .res-line .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);flex:none;width:54px}
+  .res-line .val{flex:1;font-size:13px;word-break:break-all}
+  .res-line .val a{color:var(--accent);font-weight:600}
+  .qrwrap{text-align:center;padding:8px 0 2px}
+  #qrCanvas{width:200px;height:200px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+  .qr-actions{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:26px 10px}
+  .hist-tools{display:flex;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .hist-tools input,.hist-tools select{flex:1;min-width:130px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600;
+    position:sticky;top:0;background:#fff}
+  td .tag{display:inline-block;background:#f1f5f9;border-radius:6px;padding:1px 7px;font-size:11px;color:#475569;margin:1px 0}
+  td .lnk{color:var(--accent);word-break:break-all;font-size:12px}
+  .hist-scroll{max-height:460px;overflow:auto}
+  .copybtn{cursor:pointer;border:none;background:none;color:var(--muted);font-size:14px;padding:2px 5px;border-radius:6px}
+  .copybtn:hover{color:var(--accent);background:var(--accent-soft)}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);
+    color:#fff;padding:11px 18px;border-radius:10px;font-size:13.5px;opacity:0;transition:.25s;z-index:50;box-shadow:var(--shadow)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.err{background:var(--err)}
+  .msg{font-size:12.5px;padding:9px 12px;border-radius:9px;margin-top:12px;display:none}
+  .msg.err{display:block;background:#fef2f2;color:var(--err);border:1px solid #fecaca}
+  .foot{max-width:1180px;margin:14px auto 0;padding:0 20px;color:var(--muted);font-size:11.5px;text-align:center}
+  .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;
+    animation:sp .7s linear infinite;display:inline-block}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <span class="brandmark">🔗</span>
+    <div>
+      <h1>Créateur d'URL trackées</h1>
+      <div class="sub">Groupe Tisserin · UTM + lien court + QR code</div>
+    </div>
+    <div class="who">
+      <label for="who">Ton prénom</label>
+      <input id="who" type="text" placeholder="ex. Louise" autocomplete="off">
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    <!-- ================= BUILDER ================= -->
+    <section class="card">
+      <div class="card-h"><span class="step">1</span><h2>Construire le lien</h2></div>
+      <div class="card-b">
+
+        <div class="field">
+          <label for="brand">Marque</label>
+          <select id="brand"></select>
+        </div>
+
+        <div class="field">
+          <label for="dest">URL de destination <span class="hint">- la page où tu veux envoyer les gens</span></label>
+          <input id="dest" type="text" placeholder="https://..." spellcheck="false">
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label for="source">Source <span class="hint">- d'où vient le clic</span></label>
+            <select id="source"></select>
+            <input id="sourceOther" type="text" placeholder="autre source (ex. spotify)" style="display:none;margin-top:8px">
+          </div>
+          <div class="field">
+            <label for="medium">Support <span class="hint">- le format</span></label>
+            <select id="medium"></select>
+            <input id="mediumOther" type="text" placeholder="autre support" style="display:none;margin-top:8px">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="campaign">Campagne / Programme <span class="hint">- le programme concerné</span></label>
+          <input id="campaign" type="text" list="programs" placeholder="ex. osmose" spellcheck="false" autocomplete="off">
+          <datalist id="programs"></datalist>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label for="content">Détail <span class="hint">(optionnel)</span></label>
+            <input id="content" type="text" placeholder="ex. prospecting, panneau_2m2" spellcheck="false" autocomplete="off">
+            <div class="chips" id="contentChips"></div>
+          </div>
+          <div class="field">
+            <label for="term">Mot-clé <span class="hint">(optionnel)</span></label>
+            <input id="term" type="text" placeholder="ex. appartement_neuf" spellcheck="false" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:4px">
+          <label>Aperçu du lien</label>
+          <div class="preview" id="preview"><span class="empty" style="padding:0;color:#94a3b8">Remplis les champs ci-dessus...</span></div>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center;margin-top:4px;flex-wrap:wrap">
+          <label class="toggle"><input type="checkbox" id="wantShort" checked> Lien court Bitly</label>
+          <button class="btn primary" id="genBtn" style="margin-left:auto">Générer &amp; enregistrer</button>
+        </div>
+        <div class="msg" id="formMsg"></div>
+      </div>
+    </section>
+
+    <!-- ================= RESULT + QR ================= -->
+    <section class="card">
+      <div class="card-h"><span class="step">2</span><h2>Ton lien</h2></div>
+      <div class="card-b">
+        <div class="empty" id="resEmpty">Le lien généré, son raccourci Bitly et le QR code apparaîtront ici.</div>
+        <div class="result" id="result">
+          <div class="res-line">
+            <span class="lbl">Complet</span>
+            <span class="val mono" id="outFull"></span>
+            <button class="copybtn" data-copy="full" title="Copier">📋</button>
+          </div>
+          <div class="res-line" id="shortLine" style="display:none">
+            <span class="lbl">Court</span>
+            <span class="val"><a id="outShort" target="_blank" rel="noopener"></a></span>
+            <button class="copybtn" data-copy="short" title="Copier">📋</button>
+          </div>
+          <div class="qrwrap">
+            <canvas id="qrCanvas"></canvas>
+            <div class="qr-actions">
+              <select id="qrSize" class="btn sm" style="font-weight:500">
+                <option value="8">QR moyen</option>
+                <option value="14" selected>QR grand (print)</option>
+                <option value="20">QR très grand</option>
+              </select>
+              <button class="btn sm" id="qrDownload">⬇ Télécharger le QR (PNG)</button>
+            </div>
+            <div class="hint" style="margin-top:8px;color:var(--muted)">Le QR pointe vers le lien court si dispo, sinon le lien complet.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= HISTORIQUE ================= -->
+  <section class="card" style="margin-top:20px">
+    <div class="card-h"><span class="step">3</span><h2>Historique des liens</h2>
+      <button class="btn sm" id="refreshHist" style="margin-left:auto">↻ Rafraîchir</button>
+    </div>
+    <div class="hist-tools">
+      <input id="histSearch" type="text" placeholder="Rechercher (programme, source, prénom...)">
+      <select id="histBrand"><option value="">Toutes les marques</option></select>
+    </div>
+    <div class="hist-scroll">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Marque</th><th>Source / Support</th><th>Campagne</th><th>Lien</th><th>Par</th>
+        </tr></thead>
+        <tbody id="histBody"><tr><td colspan="6" class="empty">Chargement...</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="foot">Outil interne · les liens sont enregistrés dans Supabase · <span id="count"></span></div>
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="./qrcode.js"></script>
+<script>
+/* ============ CONFIG ============ */
+const FN = "https://hpowqowzrxqokikadwni.supabase.co/functions/v1";
+
+/* ============ DONNÉES ============ */
+const BRANDS = [
+  {key:"nacarat", label:"Nacarat", url:"https://nacarat.com/"},
+  {key:"tisserin_promotion", label:"Tisserin Promotion", url:"https://www.tisserin-promotion.com/"},
+  {key:"mdfl", label:"Maisons d'en Flandre", url:"https://www.maisonsdenflandre.com/"},
+  {key:"mdfn", label:"Maisons d'en France Nord", url:"https://www.maisonsdenfrancenord.fr/"},
+  {key:"ecc", label:"Maisons ECC", url:"https://www.maisons-ecc.com/"},
+  {key:"tmi", label:"Tisserin Maison Individuelle", url:"https://maison-serin.tisserin-maisonindividuelle.fr/"}
+];
+
+const M = { // libellés supports
+  cpc:"CPC (clic payant)", display:"Display (bannières)", local:"Local (fiche Google)", organic:"Organique",
+  social_ads:"Social Ads", story:"Story", feed:"Feed", video:"Vidéo", podcast:"Podcast",
+  lignage_display:"Lignage / Display", email:"Email", sms:"SMS", print:"Print",
+  panneau_site:"Panneau de site", event:"Événement", flyers:"Flyers", affichage:"Affichage",
+  plaquette:"Plaquette", bache:"Bâche"
+};
+const portails = ["seloger_neuf","leboncoin","bienici","logic_immo_neuf","figaro_immoneuf","immoneuf","superimmo","superneuf","trouver_un_logement_neuf"];
+const portailLabels = {seloger_neuf:"SeLoger Neuf",leboncoin:"Leboncoin",bienici:"Bien'ici",logic_immo_neuf:"Logic-Immo Neuf",figaro_immoneuf:"Figaro Immoneuf",immoneuf:"Immoneuf",superimmo:"Superimmo",superneuf:"Superneuf",trouver_un_logement_neuf:"Trouver un logement neuf"};
+
+const SOURCES = [
+  {group:"Régie / Réseaux", items:[
+    {v:"google", l:"Google", mediums:["cpc","display","local","organic"]},
+    {v:"meta", l:"Meta (Facebook/Insta)", mediums:["social_ads","story","feed"]},
+    {v:"tiktok", l:"TikTok", mediums:["social_ads","feed"]},
+    {v:"linkedin", l:"LinkedIn", mediums:["social_ads","feed"]},
+    {v:"youtube", l:"YouTube", mediums:["video","podcast"]}
+  ]},
+  {group:"Portails immobiliers", items: portails.map(p=>({v:p, l:portailLabels[p], mediums:["lignage_display"]}))},
+  {group:"Base de données", items:[
+    {v:"bdd_nacarat", l:"Base Nacarat", mediums:["email","sms"]},
+    {v:"bdd_tp", l:"Base Tisserin Promotion", mediums:["email","sms"]}
+  ]},
+  {group:"Print / Terrain", items:[
+    {v:"qr_code", l:"QR code / support physique", mediums:["print","panneau_site","event","flyers","affichage","plaquette","bache"]}
+  ]}
+];
+
+// suggestions de "Détail" (utm_content) selon le support
+const CONTENT_SUGGEST = {
+  social_ads:["prospecting","retargeting","notoriete"],
+  display:["prospecting","retargeting","notoriete"],
+  cpc:["search","pmax","dsa"],
+  organic:["seo"], local:["gmb"],
+  story:["prospecting","retargeting"], feed:["prospecting","retargeting"],
+  email:["newsletter","relance"], sms:["invitation","relance"],
+  affichage:["2m2","4x3","abribus"], panneau_site:["grand_format"], flyers:["boite_lettres","main_a_main"]
+};
+
+// programmes connus -> libellé (pour le datalist)
+const PROGRAMS = ["Domaine Palomino","Nuances","Le Clos Gallieni","Le S","Les Nouveaux Jardins","Parenthèse","Riv'Elegance T2","Cerfs Volants","Ivoire","L'Alcôve","La Belle Échappée","Le Clos des Censes","Les Balcons de Jade","Pavillon Madeleine","Wool","Le Panorama 2","Les Allées du Parc","Parking Dardilly","Domaine Saint Marc","La Fabrique","Latitude 83","Le 4 Liberté","Les Bastides de Célon","Marina B","Panorama B","Cœur Boisé","Domaine Lafayette","Jardin d'Epona","Avant Scène","Bag-Art","Carré Sablon","Les Quais de la Marne","Les Toits du Golf","Audun le Tiche","Renaissance","Garance","Garance PSLA","Hana","Le Carré des Sonates","Le Roncier d'Ida","Les Dunes d'Or","Marianne","Osmose","Prisme","Hallennes lez Haubourdin","Pré Catelan"];
+
+// URL exactes connues (auto-remplit la destination) : slug -> url
+const PROGRAM_URLS = {
+  domaine_lafayette:"https://nacarat.com/programme-neuf/region-pays-de-loire/domaine-lafayette-appartements-neufs-maisons-angers/",
+  parenthese:"https://nacarat.com/programme-neuf/region-ile-de-france/maisons-appartements-neufs-gif-sur-yvette/",
+  carre_sablon:"https://nacarat.com/programme-neuf/region-grand-est/metz-carre-sablon/",
+  le_s:"https://nacarat.com/programme-neuf/region-ile-de-france/sceaux-le-s/",
+  les_balcons_de_jade:"https://nacarat.com/programme-neuf/region-hauts-de-france/appartements-neufs-laventie/",
+  panorama_b:"https://nacarat.com/programme-neuf/region-provence-alpes-cote-dazur/sainte-maxime-panorama-b/",
+  marina_b:"https://nacarat.com/programme-neuf/region-provence-alpes-cote-dazur/frejus-marina-b/",
+  audun_le_tiche:"https://nacarat.com/programme-neuf/region-grand-est/audun-le-tiche-coeur-dopale/",
+  pre_catelan:"https://pre-catelan.nacarat.com/",
+  osmose:"https://www.tisserin-promotion.com/programme/tourcoing-osmose/",
+  garance:"https://www.tisserin-promotion.com/programme/hem-garance/"
+};
+
+/* ============ HELPERS ============ */
+function slugify(s){
+  return (s||"").toString().trim().toLowerCase()
+    .replace(/œ/g,"oe").replace(/æ/g,"ae")
+    .normalize("NFD").replace(/[̀-ͯ]/g,"")
+    .replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");
+}
+const $ = id => document.getElementById(id);
+function toast(msg, isErr){const t=$("toast");t.textContent=msg;t.className="toast show"+(isErr?" err":"");setTimeout(()=>t.className="toast",2200);}
+async function copy(text){try{await navigator.clipboard.writeText(text);toast("Copié ✓");}catch(e){toast("Copie impossible",true);}}
+
+/* ============ INIT UI ============ */
+let lastBrandUrl = "";
+function initBrands(){
+  const sel=$("brand");
+  BRANDS.forEach(b=>{const o=document.createElement("option");o.value=b.key;o.textContent=b.label;o.dataset.url=b.url;sel.appendChild(o);});
+  // filtre marque historique
+  const hb=$("histBrand");
+  BRANDS.forEach(b=>{const o=document.createElement("option");o.value=b.key;o.textContent=b.label;hb.appendChild(o);});
+  applyBrand();
+}
+function applyBrand(){
+  const opt=$("brand").selectedOptions[0];
+  const url=opt.dataset.url||"";
+  // ne remplace la destination que si vide ou = ancienne home marque
+  const dest=$("dest");
+  if(!dest.value.trim() || dest.value.trim()===lastBrandUrl) dest.value=url;
+  lastBrandUrl=url;
+  updatePreview();
+}
+function initSources(){
+  const sel=$("source");
+  SOURCES.forEach(g=>{
+    const og=document.createElement("optgroup");og.label=g.group;
+    g.items.forEach(it=>{const o=document.createElement("option");o.value=it.v;o.textContent=it.l;og.appendChild(o);});
+    sel.appendChild(og);
+  });
+  const other=document.createElement("option");other.value="__other__";other.textContent="+ Autre...";sel.appendChild(other);
+  initMediums();
+}
+function findSource(v){for(const g of SOURCES)for(const it of g.items)if(it.v===v)return it;return null;}
+function initMediums(){
+  const sv=$("source").value;
+  const sel=$("medium");sel.innerHTML="";
+  $("sourceOther").style.display = sv==="__other__" ? "block":"none";
+  let mediums;
+  if(sv==="__other__"){mediums=Object.keys(M);}
+  else {const src=findSource(sv);mediums=src?src.mediums:[];}
+  mediums.forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=M[m]||m;sel.appendChild(o);});
+  const other=document.createElement("option");other.value="__other__";other.textContent="+ Autre...";sel.appendChild(other);
+  onMediumChange();
+}
+function onMediumChange(){
+  const mv=$("medium").value;
+  $("mediumOther").style.display = mv==="__other__" ? "block":"none";
+  renderContentChips(mv);
+  updatePreview();
+}
+function renderContentChips(mv){
+  const box=$("contentChips");box.innerHTML="";
+  const sug=CONTENT_SUGGEST[mv]||[];
+  sug.forEach(s=>{const c=document.createElement("span");c.className="chip";c.textContent=s;
+    c.onclick=()=>{$("content").value=s;updatePreview();};box.appendChild(c);});
+}
+function initPrograms(){
+  const dl=$("programs");
+  PROGRAMS.forEach(p=>{const o=document.createElement("option");o.value=slugify(p);o.textContent=p;dl.appendChild(o);});
+}
+
+/* ============ VALEURS COURANTES ============ */
+function getSource(){const v=$("source").value;return v==="__other__"?slugify($("sourceOther").value):v;}
+function getMedium(){const v=$("medium").value;return v==="__other__"?slugify($("mediumOther").value):v;}
+function getVals(){
+  return {
+    brand:$("brand").value,
+    base_url:$("dest").value.trim(),
+    utm_source:getSource(),
+    utm_medium:getMedium(),
+    utm_campaign:slugify($("campaign").value),
+    utm_content:slugify($("content").value),
+    utm_term:slugify($("term").value)
+  };
+}
+function buildFinalUrl(v){
+  if(!v.base_url) return "";
+  const params={utm_source:v.utm_source,utm_medium:v.utm_medium,utm_campaign:v.utm_campaign};
+  if(v.utm_content)params.utm_content=v.utm_content;
+  if(v.utm_term)params.utm_term=v.utm_term;
+  try{
+    const u=new URL(v.base_url);
+    Object.entries(params).forEach(([k,val])=>{if(val)u.searchParams.set(k,val);});
+    return u.toString();
+  }catch(e){
+    const sep=v.base_url.includes("?")?"&":"?";
+    const qs=Object.entries(params).filter(([,val])=>val).map(([k,val])=>k+"="+val).join("&");
+    return v.base_url+sep+qs;
+  }
+}
+function updatePreview(){
+  let v=getVals();
+  // autofill destination si programme connu et champ vide ou = home marque
+  const known=PROGRAM_URLS[v.utm_campaign];
+  if(known){const dest=$("dest");if(!dest.value.trim()||dest.value.trim()===lastBrandUrl){dest.value=known;lastBrandUrl=known;v=getVals();}}
+  const pv=$("preview");
+  if(!v.base_url){pv.innerHTML='<span class="empty" style="padding:0;color:#94a3b8">Ajoute une URL de destination...</span>';return;}
+  const params=[["utm_source",v.utm_source||"?"],["utm_medium",v.utm_medium||"?"],["utm_campaign",v.utm_campaign||"?"]];
+  if(v.utm_content)params.push(["utm_content",v.utm_content]);
+  if(v.utm_term)params.push(["utm_term",v.utm_term]);
+  const sep=v.base_url.includes("?")?"&":"?";
+  let html='<span class="base">'+esc(v.base_url)+'</span>';
+  params.forEach((p,i)=>{
+    html+='<span class="k">'+(i===0?sep:"&")+p[0]+'=</span><span class="v">'+esc(p[1])+'</span>';
+  });
+  pv.innerHTML=html;
+}
+
+/* ============ GÉNÉRER + ENREGISTRER ============ */
+let currentLink = {full:"", short:""};
+async function generate(){
+  const v=getVals();
+  const msg=$("formMsg");msg.className="msg";
+  const miss=[];
+  if(!v.base_url)miss.push("URL de destination");
+  if(!v.utm_source)miss.push("Source");
+  if(!v.utm_medium)miss.push("Support");
+  if(!v.utm_campaign)miss.push("Campagne");
+  if(miss.length){msg.className="msg err";msg.textContent="Il manque : "+miss.join(", ");return;}
+
+  const full=buildFinalUrl(v);
+  const btn=$("genBtn");btn.disabled=true;const old=btn.innerHTML;btn.innerHTML='<span class="spin"></span> Génération...';
+
+  const payload={...v, final_url:full, want_short:$("wantShort").checked, created_by:$("who").value.trim()||null,
+    utm_content:v.utm_content||null, utm_term:v.utm_term||null};
+  try{
+    const r=await fetch(FN+"/create-link",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    const data=await r.json();
+    if(!r.ok||data.error){throw new Error(data.error||("HTTP "+r.status));}
+    currentLink={full:full, short:data.short_url||""};
+    showResult();
+    toast("Lien enregistré ✓");
+    loadHistory();
+  }catch(e){
+    msg.className="msg err";msg.textContent="Erreur : "+e.message+". Le lien complet reste utilisable ci-dessous.";
+    currentLink={full:full, short:""};showResult();
+  }finally{btn.disabled=false;btn.innerHTML=old;}
+}
+function showResult(){
+  $("resEmpty").style.display="none";
+  $("result").classList.add("show");
+  $("outFull").textContent=currentLink.full;
+  const sl=$("shortLine");
+  if(currentLink.short){sl.style.display="flex";const a=$("outShort");a.href=currentLink.short;a.textContent=currentLink.short;}
+  else{sl.style.display="none";}
+  drawQR();
+}
+
+/* ============ QR ============ */
+function qrTarget(){return currentLink.short||currentLink.full;}
+function drawQR(){
+  const text=qrTarget();if(!text)return;
+  const scale=parseInt($("qrSize").value,10);const margin=4;
+  const qr=qrcode(0,"M");qr.addData(text);qr.make();
+  const count=qr.getModuleCount();const size=(count+margin*2)*scale;
+  const cv=$("qrCanvas");cv.width=size;cv.height=size;
+  const ctx=cv.getContext("2d");
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,size,size);
+  ctx.fillStyle="#000";
+  for(let r=0;r<count;r++)for(let c=0;c<count;c++){if(qr.isDark(r,c))ctx.fillRect((c+margin)*scale,(r+margin)*scale,scale,scale);}
+  // affichage à taille CSS fixe, la résolution reste haute
+}
+function downloadQR(){
+  const cv=$("qrCanvas");if(!cv.width)return;
+  const v=getVals();
+  const name="qr_"+(v.brand||"")+"_"+(v.utm_campaign||"lien")+"_"+(v.utm_source||"")+".png";
+  const a=document.createElement("a");a.href=cv.toDataURL("image/png");a.download=name.replace(/_+/g,"_");a.click();
+}
+
+/* ============ HISTORIQUE ============ */
+let histTimer;
+async function loadHistory(){
+  const body=$("histBody");
+  const q=$("histSearch").value.trim();
+  const brand=$("histBrand").value;
+  let url=FN+"/list-links?limit=300";
+  if(brand)url+="&brand="+encodeURIComponent(brand);
+  if(q)url+="&q="+encodeURIComponent(q);
+  try{
+    const r=await fetch(url);const rows=await r.json();
+    if(!Array.isArray(rows)){throw new Error(rows.error||"réponse invalide");}
+    $("count").textContent=rows.length+" lien"+(rows.length>1?"s":"")+" affiché"+(rows.length>1?"s":"");
+    if(!rows.length){body.innerHTML='<tr><td colspan="6" class="empty">Aucun lien pour le moment.</td></tr>';return;}
+    body.innerHTML=rows.map(rowHtml).join("");
+    body.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>copy(b.dataset.c));
+  }catch(e){
+    body.innerHTML='<tr><td colspan="6" class="empty">Erreur de chargement : '+e.message+'</td></tr>';
+  }
+}
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function brandLabel(k){const b=BRANDS.find(x=>x.key===k);return b?b.label:k;}
+function rowHtml(x){
+  const d=new Date(x.created_at);
+  const date=d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"2-digit"})+" "+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  const link=x.short_url||x.final_url;
+  const linkShow=x.short_url?x.short_url:x.final_url;
+  return '<tr>'+
+    '<td style="white-space:nowrap;color:#64748b">'+date+'</td>'+
+    '<td>'+esc(brandLabel(x.brand))+'</td>'+
+    '<td><span class="tag">'+esc(x.utm_source)+'</span><br><span class="tag">'+esc(x.utm_medium)+'</span></td>'+
+    '<td>'+esc(x.utm_campaign)+(x.utm_content?'<br><span class="tag">'+esc(x.utm_content)+'</span>':'')+'</td>'+
+    '<td><a class="lnk" href="'+esc(x.final_url)+'" target="_blank" rel="noopener">'+esc(linkShow)+'</a> '+
+      '<button class="copybtn" data-c="'+esc(link)+'" title="Copier">📋</button></td>'+
+    '<td style="color:#64748b">'+esc(x.created_by||"")+'</td>'+
+  '</tr>';
+}
+
+/* ============ ÉVÉNEMENTS ============ */
+$("brand").addEventListener("change",applyBrand);
+$("source").addEventListener("change",initMediums);
+$("medium").addEventListener("change",onMediumChange);
+["dest","campaign","content","term","sourceOther","mediumOther"].forEach(id=>$(id).addEventListener("input",updatePreview));
+$("genBtn").addEventListener("click",generate);
+$("qrSize").addEventListener("change",drawQR);
+$("qrDownload").addEventListener("click",downloadQR);
+$("refreshHist").addEventListener("click",loadHistory);
+$("histBrand").addEventListener("change",loadHistory);
+$("histSearch").addEventListener("input",()=>{clearTimeout(histTimer);histTimer=setTimeout(loadHistory,350);});
+document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>copy(b.dataset.copy==="short"?currentLink.short:currentLink.full));
+// mémoriser le prénom
+$("who").value=localStorage.getItem("utm_who")||"";
+$("who").addEventListener("input",()=>localStorage.setItem("utm_who",$("who").value));
+
+/* ============ BOOT ============ */
+initBrands();initSources();initPrograms();updatePreview();loadHistory();
+</script>
+</body>
+</html>
