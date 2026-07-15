@@ -81,6 +81,17 @@
   .qrwrap{text-align:center;padding:8px 0 2px}
   #qrCanvas{width:200px;height:200px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
   .qr-actions{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  .qropts{margin-top:14px;display:flex;flex-direction:column;gap:9px;text-align:left;
+    background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:12px}
+  .qorow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .qolbl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);width:52px;flex:none}
+  .swatches{display:flex;gap:5px}
+  .swatch{width:22px;height:22px;border-radius:6px;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer}
+  .swatch.on{box-shadow:0 0 0 2px var(--accent)}
+  input[type=color]{width:36px;height:28px;padding:2px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .seg button{border:none;background:#fff;padding:6px 15px;font-size:12.5px;cursor:pointer;color:#475569}
+  .seg button.on{background:var(--accent);color:#fff}
   .empty{color:var(--muted);font-size:13px;text-align:center;padding:26px 10px}
   .hist-tools{display:flex;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
   .hist-tools input,.hist-tools select{flex:1;min-width:130px}
@@ -218,15 +229,38 @@
           </div>
           <div class="qrwrap">
             <canvas id="qrCanvas"></canvas>
+            <div class="qropts">
+              <div class="qorow">
+                <span class="qolbl">Couleur</span>
+                <div class="swatches" id="qrSwatches"></div>
+                <input type="color" id="qrColor" value="#000000" title="Couleur personnalisée">
+              </div>
+              <div class="qorow">
+                <span class="qolbl">Forme</span>
+                <div class="seg" id="qrShape">
+                  <button type="button" data-shape="square" class="on">Carré</button>
+                  <button type="button" data-shape="rounded">Arrondi</button>
+                </div>
+              </div>
+              <div class="qorow">
+                <span class="qolbl">Logo</span>
+                <button class="btn sm" id="qrLogoBtn">＋ Ajouter un logo</button>
+                <span id="qrLogoName" class="hint"></span>
+                <button class="btn sm" id="qrLogoClear" style="display:none">Retirer</button>
+                <input type="file" id="qrLogoFile" accept="image/*" style="display:none">
+              </div>
+            </div>
             <div class="qr-actions">
               <select id="qrSize" class="btn sm" style="font-weight:500">
-                <option value="8">QR moyen</option>
-                <option value="14" selected>QR grand (print)</option>
-                <option value="20">QR très grand</option>
+                <option value="8">Taille moyenne</option>
+                <option value="14" selected>Grande (print)</option>
+                <option value="24">Très grande</option>
               </select>
-              <button class="btn sm" id="qrDownload">⬇ Télécharger le QR (PNG)</button>
+              <button class="btn sm" id="qrDownload">⬇ PNG</button>
+              <button class="btn sm" id="qrDownloadSvg">⬇ SVG (print)</button>
             </div>
-            <div class="hint" style="margin-top:8px;color:var(--muted)">Le QR pointe vers le lien court si dispo, sinon le lien complet.</div>
+            <div class="hint" id="qrWarn" style="margin-top:8px;color:var(--warn);display:none"></div>
+            <div class="hint" style="margin-top:8px;color:var(--muted)">Le QR pointe vers le lien court si dispo, sinon le lien complet. Le SVG garde une qualité infinie pour les grands formats (bâches, 4x3).</div>
           </div>
         </div>
       </div>
@@ -485,29 +519,97 @@ function showResult(){
   const sl=$("shortLine");
   if(currentLink.short){sl.style.display="flex";const a=$("outShort");a.href=currentLink.short;a.textContent=currentLink.short;}
   else{sl.style.display="none";}
-  drawQR();
+  loadBrandLogo();renderQR();
 }
 
 /* ============ QR ============ */
+const QR_SWATCHES=[["#000000","Noir"],["#3E3E40","Anthracite"],["#1E336D","Marine MDFN"],["#457275","Teal Tisserin"],["#E30613","Rouge ECC"],["#5E7A63","Vert sauge"]];
+const qrOpts={color:localStorage.getItem("qr_color")||"#000000", rounded:localStorage.getItem("qr_shape")==="rounded"};
+let qrLogoImg=null, qrLogoData=null;
 function qrTarget(){return currentLink.short||currentLink.full;}
-function drawQR(){
+
+function initQrControls(){
+  const sw=$("qrSwatches");
+  QR_SWATCHES.forEach(([c,name])=>{const b=document.createElement("span");b.className="swatch";b.style.background=c;b.title=name;b.dataset.c=c;
+    b.onclick=()=>setColor(c);sw.appendChild(b);});
+  $("qrColor").value=qrOpts.color;
+  $("qrColor").addEventListener("input",e=>setColor(e.target.value));
+  $("qrShape").querySelectorAll("button").forEach(b=>{
+    b.classList.toggle("on",(b.dataset.shape==="rounded")===qrOpts.rounded);
+    b.onclick=()=>{qrOpts.rounded=(b.dataset.shape==="rounded");localStorage.setItem("qr_shape",b.dataset.shape);
+      $("qrShape").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));renderQR();};
+  });
+  $("qrLogoBtn").onclick=()=>$("qrLogoFile").click();
+  $("qrLogoFile").addEventListener("change",onLogoFile);
+  $("qrLogoClear").onclick=()=>{const brand=$("brand").value;if(brand)localStorage.removeItem("qr_logo_"+brand);wipeLogo();renderQR();};
+  markSwatch();checkContrast();
+}
+function setColor(c){qrOpts.color=c;localStorage.setItem("qr_color",c);$("qrColor").value=c;markSwatch();checkContrast();renderQR();}
+function markSwatch(){$("qrSwatches").querySelectorAll(".swatch").forEach(s=>s.classList.toggle("on",s.dataset.c.toLowerCase()===qrOpts.color.toLowerCase()));}
+function checkContrast(){
+  const c=qrOpts.color.replace("#","");if(c.length<6)return;
+  const r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);
+  const lum=(0.299*r+0.587*g+0.114*b)/255;const w=$("qrWarn");
+  if(lum>0.6){w.style.display="block";w.textContent="⚠ Couleur claire : le QR risque de mal se scanner, préfère une couleur foncée.";}
+  else w.style.display="none";
+}
+function onLogoFile(e){
+  const f=e.target.files[0];if(!f)return;
+  const reader=new FileReader();
+  reader.onload=()=>{setLogo(reader.result);const brand=$("brand").value;if(brand)localStorage.setItem("qr_logo_"+brand,reader.result);};
+  reader.readAsDataURL(f);
+}
+function setLogo(dataURI){
+  qrLogoData=dataURI;const img=new Image();
+  img.onload=()=>{qrLogoImg=img;$("qrLogoName").textContent="logo ajouté";$("qrLogoClear").style.display="inline-flex";renderQR();};
+  img.src=dataURI;
+}
+function wipeLogo(){qrLogoData=null;qrLogoImg=null;$("qrLogoName").textContent="";$("qrLogoClear").style.display="none";}
+function loadBrandLogo(){
+  const brand=$("brand").value;const stored=brand?localStorage.getItem("qr_logo_"+brand):null;
+  if(stored){if(qrLogoData!==stored)setLogo(stored);}
+  else if(qrLogoData){wipeLogo();}
+}
+function buildMatrix(text){const qr=qrcode(0,qrLogoImg?"H":"M");qr.addData(text);qr.make();return qr;}
+function renderQR(){
   const text=qrTarget();if(!text)return;
   const scale=parseInt($("qrSize").value,10);const margin=4;
-  const qr=qrcode(0,"M");qr.addData(text);qr.make();
-  const count=qr.getModuleCount();const size=(count+margin*2)*scale;
+  const qr=buildMatrix(text);const count=qr.getModuleCount();const size=(count+margin*2)*scale;
   const cv=$("qrCanvas");cv.width=size;cv.height=size;
   const ctx=cv.getContext("2d");
   ctx.fillStyle="#fff";ctx.fillRect(0,0,size,size);
-  ctx.fillStyle="#000";
-  for(let r=0;r<count;r++)for(let c=0;c<count;c++){if(qr.isDark(r,c))ctx.fillRect((c+margin)*scale,(r+margin)*scale,scale,scale);}
-  // affichage à taille CSS fixe, la résolution reste haute
+  ctx.fillStyle=qrOpts.color;
+  const rad=qrOpts.rounded?scale*0.42:0;
+  for(let r=0;r<count;r++)for(let c=0;c<count;c++){
+    if(qr.isDark(r,c)){const x=(c+margin)*scale,y=(r+margin)*scale;
+      if(rad>0){ctx.beginPath();ctx.roundRect(x,y,scale,scale,rad);ctx.fill();}
+      else ctx.fillRect(x,y,scale,scale);}
+  }
+  if(qrLogoImg){
+    const lw=size*0.18,pz=lw+scale*2,pzx=(size-pz)/2;
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.roundRect(pzx,pzx,pz,pz,pz*0.18);ctx.fill();
+    let dw=lw,dh=lw;const ar=qrLogoImg.width/qrLogoImg.height;if(ar>1)dh=lw/ar;else dw=lw*ar;
+    ctx.drawImage(qrLogoImg,(size-dw)/2,(size-dh)/2,dw,dh);
+  }
 }
-function downloadQR(){
-  const cv=$("qrCanvas");if(!cv.width)return;
-  const v=getVals();
-  const name="qr_"+(v.brand||"")+"_"+(v.utm_campaign||"lien")+"_"+(v.utm_source||"")+".png";
-  const a=document.createElement("a");a.href=cv.toDataURL("image/png");a.download=name.replace(/_+/g,"_");a.click();
+function buildSVG(){
+  const text=qrTarget();if(!text)return"";
+  const qr=buildMatrix(text);const count=qr.getModuleCount();const margin=4,cell=10;const size=(count+margin*2)*cell;
+  const rad=qrOpts.rounded?cell*0.42:0;let rects="";
+  for(let r=0;r<count;r++)for(let c=0;c<count;c++){
+    if(qr.isDark(r,c)){const x=(c+margin)*cell,y=(r+margin)*cell;
+      rects+='<rect x="'+x+'" y="'+y+'" width="'+cell+'" height="'+cell+'"'+(rad?' rx="'+rad+'"':'')+'/>';}
+  }
+  let logo="";
+  if(qrLogoData){const lw=size*0.18,pz=lw+cell*2,pzx=(size-pz)/2;
+    logo='<rect x="'+pzx+'" y="'+pzx+'" width="'+pz+'" height="'+pz+'" rx="'+(pz*0.18)+'" fill="#fff"/>'+
+      '<image href="'+qrLogoData+'" x="'+((size-lw)/2)+'" y="'+((size-lw)/2)+'" width="'+lw+'" height="'+lw+'" preserveAspectRatio="xMidYMid meet"/>';}
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'">'+
+    '<rect width="'+size+'" height="'+size+'" fill="#fff"/><g fill="'+qrOpts.color+'">'+rects+'</g>'+logo+'</svg>';
 }
+function qrFileName(ext){const v=getVals();return ("qr_"+(v.brand||"")+"_"+(v.utm_campaign||"lien")+"_"+(v.utm_source||"")).replace(/_+/g,"_").replace(/_$/,"")+"."+ext;}
+function downloadQR(){const cv=$("qrCanvas");if(!cv.width)return;const a=document.createElement("a");a.href=cv.toDataURL("image/png");a.download=qrFileName("png");a.click();}
+function downloadSVG(){const svg=buildSVG();if(!svg)return;const blob=new Blob([svg],{type:"image/svg+xml"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=qrFileName("svg");a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);}
 
 /* ============ HISTORIQUE ============ */
 let histTimer;
@@ -553,8 +655,9 @@ $("source").addEventListener("change",initMediums);
 $("medium").addEventListener("change",onMediumChange);
 ["dest","campaign","content","term","sourceOther","mediumOther"].forEach(id=>$(id).addEventListener("input",updatePreview));
 $("genBtn").addEventListener("click",generate);
-$("qrSize").addEventListener("change",drawQR);
+$("qrSize").addEventListener("change",renderQR);
 $("qrDownload").addEventListener("click",downloadQR);
+$("qrDownloadSvg").addEventListener("click",downloadSVG);
 $("refreshHist").addEventListener("click",loadHistory);
 $("histBrand").addEventListener("change",loadHistory);
 $("histSearch").addEventListener("input",()=>{clearTimeout(histTimer);histTimer=setTimeout(loadHistory,350);});
@@ -578,7 +681,7 @@ function initGate(){
 }
 
 /* ============ BOOT ============ */
-initGate();initBrands();initSources();initPrograms();updatePreview();loadHistory();
+initGate();initBrands();initSources();initPrograms();initQrControls();updatePreview();loadHistory();
 </script>
 </body>
 </html>
