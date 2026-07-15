@@ -584,11 +584,16 @@ function renderQR(){
   const ctx=cv.getContext("2d");
   ctx.fillStyle="#fff";ctx.fillRect(0,0,size,size);
   ctx.fillStyle=qrOpts.color;
-  const rad=qrOpts.rounded?scale*0.42:0;
+  const rad=qrOpts.rounded?scale*0.5:0;
+  const dark=(rr,cc)=>rr>=0&&cc>=0&&rr<count&&cc<count&&qr.isDark(rr,cc);
   for(let r=0;r<count;r++)for(let c=0;c<count;c++){
-    if(qr.isDark(r,c)){const x=(c+margin)*scale,y=(r+margin)*scale;
-      if(rad>0){ctx.beginPath();ctx.roundRect(x,y,scale,scale,rad);ctx.fill();}
-      else ctx.fillRect(x,y,scale,scale);}
+    if(!qr.isDark(r,c))continue;
+    const x=(c+margin)*scale,y=(r+margin)*scale;
+    if(rad>0){
+      const tl=(!dark(r-1,c)&&!dark(r,c-1))?rad:0, tr=(!dark(r-1,c)&&!dark(r,c+1))?rad:0,
+            br=(!dark(r+1,c)&&!dark(r,c+1))?rad:0, bl=(!dark(r+1,c)&&!dark(r,c-1))?rad:0;
+      ctx.beginPath();ctx.roundRect(x,y,scale,scale,[tl,tr,br,bl]);ctx.fill();
+    } else ctx.fillRect(x,y,scale,scale);
   }
   if(qrLogoImg){
     const lw=size*0.18,pz=lw+scale*2,pzx=(size-pz)/2;
@@ -597,20 +602,33 @@ function renderQR(){
     ctx.drawImage(qrLogoImg,(size-dw)/2,(size-dh)/2,dw,dh);
   }
 }
+function modPath(x,y,s,tl,tr,br,bl){
+  return "M"+(x+tl)+" "+y+
+    "H"+(x+s-tr)+(tr?("A"+tr+" "+tr+" 0 0 1 "+(x+s)+" "+(y+tr)):("L"+(x+s)+" "+y))+
+    "V"+(y+s-br)+(br?("A"+br+" "+br+" 0 0 1 "+(x+s-br)+" "+(y+s)):("L"+(x+s)+" "+(y+s)))+
+    "H"+(x+bl)+(bl?("A"+bl+" "+bl+" 0 0 1 "+x+" "+(y+s-bl)):("L"+x+" "+(y+s)))+
+    "V"+(y+tl)+(tl?("A"+tl+" "+tl+" 0 0 1 "+(x+tl)+" "+y):("L"+x+" "+y))+"Z";
+}
 function buildSVG(){
   const text=qrTarget();if(!text)return"";
   const qr=buildMatrix(text);const count=qr.getModuleCount();const margin=4,cell=10;const size=(count+margin*2)*cell;
-  const rad=qrOpts.rounded?cell*0.42:0;let rects="";
+  const rad=qrOpts.rounded?cell*0.5:0;let d="";
+  const dark=(rr,cc)=>rr>=0&&cc>=0&&rr<count&&cc<count&&qr.isDark(rr,cc);
   for(let r=0;r<count;r++)for(let c=0;c<count;c++){
-    if(qr.isDark(r,c)){const x=(c+margin)*cell,y=(r+margin)*cell;
-      rects+='<rect x="'+x+'" y="'+y+'" width="'+cell+'" height="'+cell+'"'+(rad?' rx="'+rad+'"':'')+'/>';}
+    if(!qr.isDark(r,c))continue;
+    const x=(c+margin)*cell,y=(r+margin)*cell;
+    if(rad>0){
+      const tl=(!dark(r-1,c)&&!dark(r,c-1))?rad:0, tr=(!dark(r-1,c)&&!dark(r,c+1))?rad:0,
+            br=(!dark(r+1,c)&&!dark(r,c+1))?rad:0, bl=(!dark(r+1,c)&&!dark(r,c-1))?rad:0;
+      d+=modPath(x,y,cell,tl,tr,br,bl);
+    } else d+="M"+x+" "+y+"h"+cell+"v"+cell+"h"+(-cell)+"z";
   }
   let logo="";
   if(qrLogoData){const lw=size*0.18,pz=lw+cell*2,pzx=(size-pz)/2;
     logo='<rect x="'+pzx+'" y="'+pzx+'" width="'+pz+'" height="'+pz+'" rx="'+(pz*0.18)+'" fill="#fff"/>'+
       '<image href="'+qrLogoData+'" x="'+((size-lw)/2)+'" y="'+((size-lw)/2)+'" width="'+lw+'" height="'+lw+'" preserveAspectRatio="xMidYMid meet"/>';}
   return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'">'+
-    '<rect width="'+size+'" height="'+size+'" fill="#fff"/><g fill="'+qrOpts.color+'">'+rects+'</g>'+logo+'</svg>';
+    '<rect width="'+size+'" height="'+size+'" fill="#fff"/><path fill="'+qrOpts.color+'" d="'+d+'"/>'+logo+'</svg>';
 }
 function qrFileName(ext){const v=getVals();return ("qr_"+(v.brand||"")+"_"+(v.utm_campaign||"lien")+"_"+(v.utm_source||"")).replace(/_+/g,"_").replace(/_$/,"")+"."+ext;}
 function downloadQR(){const cv=$("qrCanvas");if(!cv.width)return;const a=document.createElement("a");a.href=cv.toDataURL("image/png");a.download=qrFileName("png");a.click();}
