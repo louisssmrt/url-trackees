@@ -37,6 +37,9 @@ Louis a délibérément choisi : **utm_source = le canal**, **utm_medium = le v�
 - `qr_code` : source=qr_code, support=type physique (panneau_site, affichage...). Suit déjà le même schéma.
 Ne pas remettre les portails/bases en source sous prétexte de "conformité GA".
 
+## QR arrondi (piège technique, corrigé 2026-07-15)
+Dessiner chaque module en rounded-rect pleine cellule ne se voit PAS (les voisins masquent les coins). Il faut un arrondi **conscient des voisins** : n'arrondir un coin QUE s'il est exposé (les 2 côtés adjacents sans voisin sombre). Canvas = `roundRect(x,y,s,s,[tl,tr,br,bl])` ; SVG = `<path>` avec arcs par coin (fonction `modPath`). Rayon = 0.5*cellule.
+
 ## Maintenance courante
 - Ajouter une marque / source / support / programme : éditer les tableaux `BRANDS`, `SOURCES`, `PROGRAMS`, `PROGRAM_URLS` dans `index.html`, commit + push (Pages se met à jour tout seul).
 - Changer la clé Bitly : `update app_config set value='...' where key='bitly_token';` (via MCP Supabase, aucune redeploy nécessaire).
