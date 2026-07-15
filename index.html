@@ -308,12 +308,15 @@ const BRANDS = [
 const M = { // libellés supports
   cpc:"CPC (clic payant)", display:"Display (bannières)", local:"Local (fiche Google)", organic:"Organique",
   social_ads:"Social Ads", story:"Story", feed:"Feed", video:"Vidéo", podcast:"Podcast",
-  lignage_display:"Lignage / Display", email:"Email", sms:"SMS", print:"Print",
-  panneau_site:"Panneau de site", event:"Événement", flyers:"Flyers", affichage:"Affichage",
-  plaquette:"Plaquette", bache:"Bâche"
+  print:"Print", panneau_site:"Panneau de site", event:"Événement", flyers:"Flyers", affichage:"Affichage",
+  plaquette:"Plaquette", bache:"Bâche",
+  // portails immo (supports sous la source "Lignage")
+  leboncoin:"Leboncoin", seloger_neuf:"SeLoger Neuf", bienici:"Bien'ici", logic_immo_neuf:"Logic-Immo Neuf",
+  figaro_immoneuf:"Figaro Immoneuf", immoneuf:"Immoneuf", superimmo:"Superimmo", superneuf:"Superneuf",
+  trouver_un_logement_neuf:"Trouver un logement neuf",
+  // bases de données (supports sous Emailing / SMS)
+  bdd_nacarat:"Base Nacarat", bdd_tp:"Base Tisserin Promotion"
 };
-const portails = ["seloger_neuf","leboncoin","bienici","logic_immo_neuf","figaro_immoneuf","immoneuf","superimmo","superneuf","trouver_un_logement_neuf"];
-const portailLabels = {seloger_neuf:"SeLoger Neuf",leboncoin:"Leboncoin",bienici:"Bien'ici",logic_immo_neuf:"Logic-Immo Neuf",figaro_immoneuf:"Figaro Immoneuf",immoneuf:"Immoneuf",superimmo:"Superimmo",superneuf:"Superneuf",trouver_un_logement_neuf:"Trouver un logement neuf"};
 
 const SOURCES = [
   {group:"Régie / Réseaux", items:[
@@ -323,17 +326,19 @@ const SOURCES = [
     {v:"linkedin", l:"LinkedIn", mediums:["social_ads","feed"]},
     {v:"youtube", l:"YouTube", mediums:["video","podcast"]}
   ]},
-  {group:"Portails immobiliers", items: portails.map(p=>({v:p, l:portailLabels[p], mediums:["lignage_display"]}))},
+  {group:"Portails immobiliers", items:[
+    {v:"lignage", l:"Lignage (portails immo)", mediums:["leboncoin","seloger_neuf","bienici","logic_immo_neuf","figaro_immoneuf","immoneuf","superimmo","superneuf","trouver_un_logement_neuf"]}
+  ]},
   {group:"Base de données", items:[
-    {v:"bdd_nacarat", l:"Base Nacarat", mediums:["email","sms"]},
-    {v:"bdd_tp", l:"Base Tisserin Promotion", mediums:["email","sms"]}
+    {v:"email", l:"Emailing", mediums:["bdd_nacarat","bdd_tp"]},
+    {v:"sms", l:"SMS", mediums:["bdd_nacarat","bdd_tp"]}
   ]},
   {group:"Print / Terrain", items:[
-    {v:"qr_code", l:"QR code / support physique", mediums:["print","panneau_site","event","flyers","affichage","plaquette","bache"]}
+    {v:"qr_code", l:"QR code / support physique", mediums:["panneau_site","affichage","plaquette","flyers","bache","event","print"]}
   ]}
 ];
 
-// suggestions de "Détail" (utm_content) selon le support
+// suggestions de "Détail" (utm_content) - fusion selon la source ET le support
 const CONTENT_SUGGEST = {
   social_ads:["prospecting","retargeting","notoriete"],
   display:["prospecting","retargeting","notoriete"],
@@ -419,12 +424,12 @@ function initMediums(){
 function onMediumChange(){
   const mv=$("medium").value;
   $("mediumOther").style.display = mv==="__other__" ? "block":"none";
-  renderContentChips(mv);
+  renderContentChips();
   updatePreview();
 }
-function renderContentChips(mv){
+function renderContentChips(){
   const box=$("contentChips");box.innerHTML="";
-  const sug=CONTENT_SUGGEST[mv]||[];
+  const sug=[...new Set([...(CONTENT_SUGGEST[getSource()]||[]),...(CONTENT_SUGGEST[getMedium()]||[])])];
   sug.forEach(s=>{const c=document.createElement("span");c.className="chip";c.textContent=s;
     c.onclick=()=>{$("content").value=s;updatePreview();};box.appendChild(c);});
 }
