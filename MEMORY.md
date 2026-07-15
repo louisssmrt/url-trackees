@@ -29,6 +29,14 @@ Outil web interne (remplace `OneDrive/Créateur URL Trackées.xlsm`). Créé le 
 - Valeurs normalisées en minuscules propres (slugify : accents retirés, espaces → `_`).
 - utm_campaign = nom du programme (slug). utm_content = détail/variante (prospecting, retargeting, 2m2...). utm_term = mot-clé.
 
+## Taxonomie source/support (choix Louis 2026-07-15) - NE PAS "re-corriger"
+Louis a délibérément choisi : **utm_source = le canal**, **utm_medium = le véhicule précis**. C'est INVERSÉ par rapport à la convention GA "textbook" (où source=plateforme, medium=type), mais c'est son choix assumé, à respecter :
+- Source `lignage` → support = le portail (leboncoin, seloger_neuf, bienici...).
+- Source `email` / `sms` → support = la base (bdd_nacarat, bdd_tp).
+- Exception assumée : les **régies (google/meta/tiktok/linkedin/youtube)** gardent source=plateforme, support=format (cpc, social_ads...) car le budget par plateforme se suit individuellement.
+- `qr_code` : source=qr_code, support=type physique (panneau_site, affichage...). Suit déjà le même schéma.
+Ne pas remettre les portails/bases en source sous prétexte de "conformité GA".
+
 ## Maintenance courante
 - Ajouter une marque / source / support / programme : éditer les tableaux `BRANDS`, `SOURCES`, `PROGRAMS`, `PROGRAM_URLS` dans `index.html`, commit + push (Pages se met à jour tout seul).
 - Changer la clé Bitly : `update app_config set value='...' where key='bitly_token';` (via MCP Supabase, aucune redeploy nécessaire).
