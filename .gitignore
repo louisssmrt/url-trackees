@@ -1,3 +1,4 @@
 _persist_test.txt
 *.tmp
 .DS_Store
+tests/.cache/

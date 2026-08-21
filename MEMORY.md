@@ -40,6 +40,46 @@ Ne pas remettre les portails/bases en source sous prétexte de "conformité GA".
 ## QR arrondi (piège technique, corrigé 2026-07-15)
 Dessiner chaque module en rounded-rect pleine cellule ne se voit PAS (les voisins masquent les coins). Il faut un arrondi **conscient des voisins** : n'arrondir un coin QUE s'il est exposé (les 2 côtés adjacents sans voisin sombre). Canvas = `roundRect(x,y,s,s,[tl,tr,br,bl])` ; SVG = `<path>` avec arcs par coin (fonction `modPath`). Rayon = 0.5*cellule.
 
+## Personnalisation du QR (ajoutee le 2026-08-21, demande Marie-Laure / Maxime)
+
+Le panneau sous le QR permet : couleur unie ou **degrade** (diagonal / radial, 2 couleurs),
+forme des **modules** (carre / arrondi / points), forme et couleur des **coins** (carre / arrondi /
+cercle), **fond** (blanc / transparent / couleur), **logo** au centre (import ou preset) avec taille
+et pastille. Tout est memorise dans le localStorage du navigateur, donc chaque personne garde son
+style d'un lien a l'autre.
+
+**Presets reseaux sociaux** : 8 boutons (Instagram, Facebook, LinkedIn, TikTok, YouTube, Pinterest,
+X, WhatsApp) qui posent en un clic couleur + degrade + coins ronds + logo officiel du reseau. Les
+glyphes viennent de **simple-icons v13.15.0**, inlines en dur dans `SOCIAL_ICONS` (aucun appel
+reseau a l'execution). Pour en ajouter un : recuperer le `d=` du path sur
+`https://unpkg.com/simple-icons@13.15.0/icons/<nom>.svg`, l'ajouter a `SOCIAL_ICONS` puis une entree
+dans `SOCIAL_PRESETS`.
+
+Canvas et SVG partagent les memes generateurs de chemin (`modsPath`, `eyesPath`), donc le PNG a
+l'ecran et le SVG d'impression sont identiques par construction. Ne pas re-diverger les deux rendus.
+
+### Pieges de scannabilite (verifies au decodeur, ne pas "reoptimiser" a l'oeil)
+
+- **Modules "points" : rayon exactement `cell*0.5`**, pas moins. A 0.45 les pastilles ne se touchent
+  plus et jsQR echoue a 300 px comme a 600 px, alors que le QR reste beau a l'ecran. C'est le
+  reglage le plus fragile du fichier.
+- **Degrade Instagram** : la vraie palette Instagram finit sur de l'orange (`#F58529`), trop clair,
+  le coin du QR devient illisible. Preset cale sur `#833AB4` -> `#E1306C`, les deux assez sombres.
+  Regle generale : la luminance des DEUX couleurs du degrade doit rester sous ~0.58.
+- **Logo plafonne a 24 %** de la largeur (slider). A 28 % plus rien ne se decode, meme en correction
+  d'erreur H (le niveau H est deja force automatiquement des qu'un logo est present).
+- L'avertissement sous le QR est calcule (contraste, luminance, taille du logo, fond transparent) :
+  s'il s'affiche, le QR est vraiment a risque.
+
+### Harnais de test : `tests/test_qr_scan.py`
+
+Rejoue les 27 combinaisons formes x coins x degrade + 5 tailles de logo + les 16 presets x formes,
+et **decode chaque rendu** avec jsQR en PNG et en SVG, a 300 et 600 px. A lancer apres toute
+modification du rendu QR : `python tests/test_qr_scan.py` (jsQR se telecharge tout seul dans
+`tests/.cache/`). `cv2.QRCodeDetector` a ete essaye d'abord et ne convient pas : il refuse les
+modules arrondis et les points alors qu'un telephone les lit sans probleme, donc il produit des faux
+echecs. jsQR est le bon juge.
+
 ## Maintenance courante
 - Ajouter une marque / source / support / programme : éditer les tableaux `BRANDS`, `SOURCES`, `PROGRAMS`, `PROGRAM_URLS` dans `index.html`, commit + push (Pages se met à jour tout seul).
 - Changer la clé Bitly : `update app_config set value='...' where key='bitly_token';` (via MCP Supabase, aucune redeploy nécessaire).
