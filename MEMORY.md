@@ -96,5 +96,13 @@ git add -A && git commit -m "..." && git push
 ## Refonte visuelle + Quend (2026-11-10)
 - Couche presentation refaite : rampe graphite teintee teal, accent `#3d6a6d`, Inter + JetBrains Mono, icones SVG (sprite `<symbol>` en haut du body), historique en cartes sous 600 px. Logique JS et IDs inchanges, test QR 48/48 OK apres refonte.
 - `Quend` ajoute a `PROGRAMS` (nom de ville tant que le nom commercial n'est pas fixe), pas d'URL dans `PROGRAM_URLS`.
-- `controle_livraison.py` sort PAS PRET sur ce fichier ("typologie T1 a T5" a cause du programme `Riv'Elegance T2`) : faux positif, outil interne.
+- `controle_livraison.py` sortait PAS PRET ("typologie T1 a T5", programme `Riv'Elegance T2`) : sort PRET au 2026-11-10.
 
+## Refonte ergonomique (2026-11-10)
+- Parcours : marque > programme (datalist en libelles, slug affiche « Enregistré comme ») > URL (auto depuis `PROGRAM_URLS` ou home marque, note « URL remplie depuis la fiche programme ») > source > support > précisions facultatives > « Signé par » (dans le formulaire, plus d'ecran prenom ni de champ dans le header).
+- Panneau droit a 2 etats : attente (apercu du lien complet, pas de QR) / resultat (lien court en grand + Copier principal, lien complet tronque cliquable, QR + PNG/SVG, « Personnaliser le QR » replie). Bandeau si les champs changent apres generation.
+- Bouton desactive tant qu'il manque quelque chose, raison ecrite dessous ; erreurs en ligne apres blur ou Ctrl+Entree ; bouton re-desactive apres generation (anti-doublon) jusqu'a modification.
+- localStorage : `utm_who`, `utm_want_short` (Bitly ON par defaut), `qr_custom_open`. « Nouveau lien » garde marque + auteur.
+- Historique en liste (lien court + copie, lien complet tronque + copie, campagne/marque, source > support, date/auteur).
+- Logique URL / QR / backend inchangee (blocs recopies tels quels). Captures : `captures/ux-*.png`. Recette scriptee (create-link et list-links interceptes, aucun vrai lien) : `C:/tmp/urlux/shots.py`.
+- Piege : en grille 1 colonne, `1fr` = `minmax(auto,1fr)` ; un texte `nowrap` (lien complet tronque) elargit la piste a 1180 px sur mobile. Toujours `minmax(0,1fr)`.

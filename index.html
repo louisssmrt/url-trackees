@@ -12,12 +12,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    /* rampe neutre graphite, legerement teintee vers le teal Tisserin */
     --bg:#f3f4f3; --surface:#fbfbfa; --surface-2:#f6f7f6; --sunken:#eef0ef;
-    --ink:#1b2224; --text-2:#465255; --muted:#6c7779; --faint:#99a3a4;
-    --line:rgba(27,34,36,.10); --line-2:rgba(27,34,36,.16);
-    --accent:#3d6a6d; --accent-h:#2f5659; --accent-soft:#e3ecec; --ring:0 0 0 3px rgba(61,106,109,.22);
-    --ok:#3f7a4f; --warn:#8a5a12; --warn-soft:#f7efe0; --err:#a33a2e; --err-soft:#f8ebe8;
+    --ink:#1b2224; --text-2:#3f4a4d; --muted:#5b6669; --faint:#7d8789;
+    --line:rgba(27,34,36,.10); --line-2:rgba(27,34,36,.18);
+    --accent:#3d6a6d; --accent-h:#2f5659; --accent-soft:#e3ecec; --ring:0 0 0 3px rgba(61,106,109,.30);
+    --ok:#2f6b3f; --ok-soft:#e6f0e8; --warn:#7a4f0f; --warn-soft:#f7efe0; --err:#a33a2e; --err-soft:#f8ebe8;
     --shadow:0 1px 2px rgba(27,34,36,.05),0 4px 16px rgba(27,34,36,.04);
     --r-card:14px; --r-ctl:9px; --r-sm:7px;
     --font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -29,117 +28,172 @@
   body{margin:0;font-family:var(--font);font-size:14px;background:var(--bg);color:var(--ink);line-height:1.5;
     -webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01"}
   a{color:var(--accent)}
+  [hidden]{display:none !important}
   svg.i{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
   button{font-family:inherit}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-2);border-bottom-width:2px;border-radius:5px;padding:0 5px;
+    background:var(--surface);color:var(--text-2)}
 
   /* ---------- en-tete ---------- */
-  header.top{position:sticky;top:0;z-index:20;background:rgba(243,244,243,.88);backdrop-filter:saturate(1.2) blur(10px);
-    -webkit-backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid var(--line)}
+  header.top{background:var(--bg);border-bottom:1px solid var(--line)}
   .top-in{max-width:1200px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:12px}
   .brandmark{width:32px;height:32px;border-radius:8px;background:var(--accent);color:var(--surface);display:grid;place-items:center;flex:none}
   .brandmark svg.i{width:18px;height:18px;stroke-width:2}
   .top h1{font-size:15px;margin:0;font-weight:600;letter-spacing:-.01em;line-height:1.3}
   .top .sub{color:var(--muted);font-size:12.5px;line-height:1.3}
-  .who{margin-left:auto;display:flex;align-items:center;gap:8px}
-  .who label{font-size:12.5px;color:var(--muted);white-space:nowrap}
-  .who input{width:148px;padding:7px 10px;font-size:13.5px}
+  .top .jump{margin-left:auto;font-size:13px;color:var(--text-2);text-decoration:none;padding:6px 10px;border-radius:var(--r-sm)}
+  .top .jump:hover{background:var(--sunken);color:var(--ink)}
+  .top .jump:focus-visible{outline:none;box-shadow:var(--ring)}
 
   main{max-width:1200px;margin:0 auto;padding:24px 24px 48px}
-  .grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:20px;align-items:start}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
 
   /* ---------- cartes ---------- */
   .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);box-shadow:var(--shadow)}
-  .card-h{padding:16px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;min-height:60px}
+  .card-h{padding:16px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;min-height:58px}
   .card-h h2{font-size:15px;margin:0;font-weight:600;letter-spacing:-.005em}
-  .card-h .desc{color:var(--muted);font-size:12.5px;margin-top:0}
+  .card-h .desc{color:var(--muted);font-size:12.5px}
+  .card-h .right{margin-left:auto;display:flex;gap:8px}
   .card-b{padding:24px}
 
   /* ---------- formulaire ---------- */
-  .field{margin-bottom:20px}
+  fieldset{border:none;margin:0;padding:0;min-width:0}
+  .grp{padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid var(--line)}
+  .grp-opt legend{font-size:13px;font-weight:500;color:var(--text-2);padding:0;margin-bottom:12px}
+  .grp-opt .field > label{font-weight:400;color:var(--text-2)}
+  .field{margin-bottom:16px}
   .field:last-child{margin-bottom:0}
-  .field > label{display:block;font-size:13px;font-weight:500;margin-bottom:8px;color:var(--ink)}
+  .field > label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--ink)}
   .hint{font-weight:400;color:var(--muted);font-size:12px}
   .req{color:var(--err);font-weight:500}
   select,input[type=text],input[type=url],textarea{width:100%;height:40px;padding:0 12px;border:1px solid var(--line-2);
     border-radius:var(--r-ctl);font-size:14px;background:var(--surface);color:var(--ink);font-family:inherit;
     transition:border-color .15s var(--ease),box-shadow .15s var(--ease),background-color .15s var(--ease)}
-  textarea{height:auto;padding:10px 12px}
   select{appearance:none;-webkit-appearance:none;padding-right:36px;cursor:pointer;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236c7779' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b6669' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat:no-repeat;background-position:right 12px center;background-size:16px}
-  select:hover,input[type=text]:hover,input[type=url]:hover{border-color:rgba(27,34,36,.26)}
+  select:hover,input[type=text]:hover,input[type=url]:hover{border-color:rgba(27,34,36,.30)}
   select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:var(--ring)}
+  [aria-invalid=true]{border-color:var(--err) !important}
+  [aria-invalid=true]:focus{box-shadow:0 0 0 3px rgba(163,58,46,.18) !important}
   input::placeholder{color:var(--faint)}
+  .ferr{display:none;color:var(--err);font-size:12.5px;margin-top:6px}
+  .ferr.show{display:block}
+  .fnote{font-size:12.5px;color:var(--muted);margin-top:6px;display:flex;gap:6px;align-items:flex-start}
+  .fnote svg.i{width:14px;height:14px;margin-top:2px}
+  .fnote.ok{color:var(--ok)}
+  .fnote code{font-family:var(--mono);font-size:12px;color:var(--text-2);background:var(--sunken);border-radius:4px;padding:0 4px}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .row2 .field{margin-bottom:0}
   .chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
   .chip{border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r-sm);padding:2px 8px;font-size:12px;
     font-family:var(--mono);cursor:pointer;color:var(--text-2);transition:border-color .15s var(--ease),color .15s var(--ease),background-color .15s var(--ease)}
   .chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
   .mono{font-family:var(--mono)}
 
-  /* apercu : l'etiquette du lien */
-  .preview{background:#1d2427;color:#d9dfdf;border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:12.5px;
-    word-break:break-all;line-height:1.7;min-height:52px}
-  .preview .base{color:#d9dfdf}
-  .preview .k{color:#8fbcbc}
-  .preview .v{color:#e8c98f}
-  .preview .empty{padding:0 !important;color:#8a9496 !important;font-family:var(--font);font-size:13px;text-align:left}
-
-  .actions{display:flex;gap:16px;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--line);flex-wrap:wrap}
-  .actions .btn.primary{margin-left:auto}
+  /* zone d'envoi */
+  .submit{margin-top:16px}
+  .opts{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .sign{display:flex;align-items:center;gap:8px}
+  .sign label{font-size:13px;color:var(--text-2);white-space:nowrap}
+  .sign input{width:150px;height:36px}
+  .go{display:flex;align-items:center;gap:12px}
+  .go .btn.primary{height:44px;padding:0 20px;font-size:14px}
+  .reason{font-size:12.5px;color:var(--muted);line-height:1.45}
+  .reason.ready{color:var(--ok)}
 
   /* ---------- boutons ---------- */
   .btn{appearance:none;-webkit-appearance:none;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);height:40px;padding:0 16px;
     border-radius:var(--r-ctl);font-size:13.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
     justify-content:center;white-space:nowrap;text-decoration:none;
     transition:background-color .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease),transform .1s var(--ease)}
-  .btn:hover{background:var(--surface-2);border-color:rgba(27,34,36,.24)}
+  .btn:hover{background:var(--surface-2);border-color:rgba(27,34,36,.28)}
   .btn:active{transform:scale(.98)}
-  .btn:focus-visible,.seg button:focus-visible,.preset:focus-visible,.chip:focus-visible,.copybtn:focus-visible,.swatch:focus-visible{outline:none;box-shadow:var(--ring)}
-  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+  .btn:focus-visible,.seg button:focus-visible,.preset:focus-visible,.chip:focus-visible,.copybtn:focus-visible,.swatch:focus-visible,
+  summary:focus-visible,.h-short:focus-visible,.hl-url:focus-visible{outline:none;box-shadow:var(--ring)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fbfbfa}
   .btn.primary:hover{background:var(--accent-h);border-color:var(--accent-h)}
-  .btn:disabled,.btn.primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
-  .btn.block{width:100%}
+  .btn:disabled{background:var(--sunken);border-color:var(--line);color:var(--faint);cursor:not-allowed;transform:none}
   .btn.sm{height:32px;padding:0 10px;font-size:12.5px;border-radius:var(--r-sm);gap:6px}
   .btn.sm svg.i{width:14px;height:14px}
   .btn.ghost{border-color:transparent;background:transparent;color:var(--text-2)}
   .btn.ghost:hover{background:var(--sunken);color:var(--ink)}
+  .btn .ic-ok,.copybtn .ic-ok{display:none}
+  .btn.done .ic-copy,.copybtn.done .ic-copy{display:none}
+  .btn.done .ic-ok,.copybtn.done .ic-ok{display:block}
+  .btn.primary.done{background:var(--ok);border-color:var(--ok)}
+  .btn.done:not(.primary){color:var(--ok);border-color:rgba(47,107,63,.4)}
+  .copybtn.done{color:var(--ok)}
 
   /* interrupteur */
-  .toggle{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text-2);cursor:pointer;user-select:none}
-  .toggle input{width:36px;height:20px;margin:0;appearance:none;-webkit-appearance:none;background:#c9d0d0;border-radius:10px;position:relative;
+  .toggle{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2);cursor:pointer;user-select:none}
+  .toggle input{width:36px;height:20px;margin:0;appearance:none;-webkit-appearance:none;background:#b5bebe;border-radius:10px;position:relative;
     cursor:pointer;transition:background-color .15s var(--ease);flex:none}
   .toggle input:checked{background:var(--accent)}
   .toggle input:focus-visible{outline:none;box-shadow:var(--ring)}
-  .toggle input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:var(--surface);
+  .toggle input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fbfbfa;
     border-radius:50%;box-shadow:0 1px 2px rgba(27,34,36,.2);transition:transform .15s var(--ease)}
   .toggle input:checked::after{transform:translateX(16px)}
 
-  /* ---------- resultat ---------- */
-  .result{display:none}
-  .result.show{display:block}
-  .res-line{display:flex;align-items:flex-start;gap:12px;background:var(--surface-2);border:1px solid var(--line);
-    border-radius:10px;padding:10px 8px 10px 12px;margin-bottom:8px}
-  .res-line .lbl{font-size:12px;color:var(--muted);flex:none;width:52px;line-height:28px}
-  .res-line .val{flex:1;min-width:0;font-size:12.5px;word-break:break-all;line-height:1.6;padding-top:3px}
-  .res-line .val a{color:var(--accent);font-weight:500;font-family:var(--mono);text-decoration:none}
-  .res-line .val a:hover{text-decoration:underline}
-  .copybtn{cursor:pointer;border:none;background:none;color:var(--muted);width:28px;height:28px;border-radius:var(--r-sm);
-    display:inline-grid;place-items:center;flex:none;padding:0;vertical-align:middle;
-    transition:background-color .15s var(--ease),color .15s var(--ease)}
-  .copybtn svg.i{width:15px;height:15px}
-  .copybtn:hover{color:var(--accent);background:var(--accent-soft)}
+  /* ---------- panneau resultat ---------- */
+  .out{position:sticky;top:16px}
+  .wait{display:flex;flex-direction:column;gap:16px}
+  .wait-box{border:1px dashed var(--line-2);border-radius:12px;background:var(--surface-2);padding:20px;display:flex;gap:14px;align-items:flex-start}
+  .wait-box .qrghost{width:56px;height:56px;border-radius:10px;background:var(--sunken);color:var(--faint);display:grid;place-items:center;flex:none}
+  .wait-box .qrghost svg.i{width:28px;height:28px;stroke-width:1.5}
+  .wait-box strong{display:block;font-size:14px;font-weight:600;margin-bottom:2px}
+  .wait-box p{margin:0;color:var(--muted);font-size:13px}
+  .pv-label{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+  .preview{background:#1d2427;color:#d9dfdf;border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:12.5px;
+    word-break:break-all;line-height:1.7;min-height:52px}
+  .preview .k{color:#9cc6c6}
+  .preview .v{color:#ebcf98}
+  .preview .q{color:#ff9d8f}
+  .preview .pempty{color:#a4adaf;font-family:var(--font);font-size:13px}
 
-  .qrwrap{text-align:center;padding-top:16px}
-  .qrstage{background:var(--sunken);border-radius:12px;padding:24px 16px;display:grid;place-items:center}
-  #qrCanvas{width:208px;height:208px;background:#fff;border-radius:10px;padding:10px;box-shadow:0 1px 2px rgba(27,34,36,.08),0 8px 24px rgba(27,34,36,.08)}
+  .stale{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--warn-soft);color:var(--warn);border-radius:var(--r-ctl);
+    padding:10px 12px;font-size:13px;margin-bottom:16px}
+  .stale span{flex:1;min-width:200px}
+  .msg{font-size:13px;padding:10px 12px;border-radius:var(--r-ctl);margin-bottom:16px;display:none}
+  .msg.err{display:block;background:var(--err-soft);color:var(--err);border:1px solid rgba(163,58,46,.18)}
+
+  .hero{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--surface-2)}
+  .hl-label{font-size:12.5px;color:var(--muted);margin-bottom:4px}
+  .hl-row{display:flex;align-items:center;gap:12px}
+  .hl-url{flex:1;min-width:0;font-family:var(--mono);font-size:20px;font-weight:500;color:var(--ink);text-decoration:none;
+    word-break:break-all;line-height:1.35;border-radius:4px}
+  .hl-url:hover{color:var(--accent);text-decoration:underline}
+  .hl-url.long{font-size:13px;font-weight:400;line-height:1.6}
+  .hl-row .btn.primary{height:44px;min-width:112px}
+  .fullrow{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+  .fullrow .fl-label{font-size:12.5px;color:var(--muted);flex:none}
+  .fullrow .fl-val{flex:1;min-width:0;font-family:var(--mono);font-size:12px;color:var(--text-2);white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;cursor:pointer;border:none;background:none;padding:0;text-align:left}
+  .fullrow .fl-val.open{white-space:normal;word-break:break-all;line-height:1.6}
+
+  .qrblock{margin-top:20px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:start}
+  .qrstage{background:var(--sunken);border-radius:12px;padding:14px;display:grid;place-items:center}
+  #qrCanvas{width:176px;height:176px;background:#fff;border-radius:8px;padding:8px;box-shadow:0 1px 2px rgba(27,34,36,.08),0 6px 18px rgba(27,34,36,.08)}
   #qrCanvas.alpha{background-image:conic-gradient(#e4e8e7 0 25%,#fbfbfa 0 50%,#e4e8e7 0 75%,#fbfbfa 0);background-size:14px 14px}
-  .qr-actions{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+  .qrside{display:flex;flex-direction:column;gap:10px}
+  .qrside h3{margin:0;font-size:13.5px;font-weight:600}
+  .qrside .qrsub{font-size:12.5px;color:var(--muted);margin:0}
+  .qr-actions{display:flex;gap:8px;flex-wrap:wrap}
   .qr-actions select{width:auto;height:32px;font-size:12.5px;padding:0 32px 0 10px;border-radius:var(--r-sm);background-position:right 8px center;background-size:14px}
+  #qrWarn{padding:8px 12px 8px 34px;border-radius:var(--r-ctl);background:var(--warn-soft) no-repeat 12px 10px / 14px;
+    color:var(--warn) !important;text-align:left;font-size:12.5px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a4f0f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E")}
 
-  .qropts{margin-top:16px;display:flex;flex-direction:column;text-align:left;
-    border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  .qorow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line);min-height:52px}
+  details.custom{margin-top:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  details.custom summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:12px 14px;font-size:13.5px;
+    font-weight:500;border-radius:12px;color:var(--ink)}
+  details.custom summary::-webkit-details-marker{display:none}
+  details.custom summary .hint{margin-left:auto}
+  details.custom summary .chev{transition:transform .15s var(--ease);color:var(--muted)}
+  details.custom[open] summary .chev{transform:rotate(90deg)}
+  details.custom[open] summary{border-bottom:1px solid var(--line);border-radius:12px 12px 0 0}
+  .qorow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line);min-height:50px}
   .qorow:last-child{border-bottom:none}
   .qolbl{font-size:12.5px;color:var(--muted);width:68px;flex:none}
   .presets{display:flex;gap:4px;flex-wrap:wrap}
@@ -159,79 +213,85 @@
     border-radius:var(--r-sm);transition:background-color .15s var(--ease),color .15s var(--ease)}
   .seg button:hover{color:var(--ink)}
   .seg button.on{background:var(--surface);color:var(--ink);font-weight:500;box-shadow:0 1px 2px rgba(27,34,36,.1),0 0 0 1px var(--line)}
-  #qrWarn{margin-top:12px;padding:8px 12px 8px 34px;border-radius:var(--r-ctl);background:var(--warn-soft) no-repeat 12px 10px / 14px;
-    color:var(--warn) !important;text-align:left;font-size:12.5px;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a5a12' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E")}
-  .qrnote{margin-top:12px;color:var(--muted);font-size:12px;text-align:left;line-height:1.55}
-  .empty{color:var(--muted);font-size:13px;text-align:center;padding:24px 12px}
-  #resEmpty{padding:48px 16px;border:1px dashed var(--line-2);border-radius:12px;background:var(--surface-2)}
+  .qrnote{margin-top:12px;color:var(--muted);font-size:12px;line-height:1.55}
+  .copybtn{cursor:pointer;border:none;background:none;color:var(--muted);width:30px;height:30px;border-radius:var(--r-sm);
+    display:inline-grid;place-items:center;flex:none;padding:0;vertical-align:middle;
+    transition:background-color .15s var(--ease),color .15s var(--ease)}
+  .copybtn svg.i{width:15px;height:15px}
+  .copybtn:hover{color:var(--accent);background:var(--accent-soft)}
 
   /* ---------- historique ---------- */
   .hist{margin-top:20px}
   .hist-tools{display:flex;gap:12px;padding:16px 24px;border-bottom:1px solid var(--line);flex-wrap:wrap}
   .hist-tools input{flex:2;min-width:180px;padding-left:36px;
-    background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2399a3a4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") no-repeat 12px center / 16px}
+    background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237d8789' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") no-repeat 12px center / 16px}
   .hist-tools select{flex:1;min-width:160px}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{text-align:left;padding:10px 16px;border-bottom:1px solid var(--line);vertical-align:top}
-  th:first-child,td:first-child{padding-left:24px}
-  th:last-child,td:last-child{padding-right:24px}
-  th{font-size:12px;color:var(--muted);font-weight:500;position:sticky;top:0;background:var(--surface);z-index:1;
-    box-shadow:inset 0 -1px 0 var(--line)}
-  tbody tr{transition:background-color .15s var(--ease)}
-  tbody tr:hover{background:var(--surface-2)}
-  tbody tr:last-child td{border-bottom:none}
-  td:first-child{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:12px}
-  td .tag{display:inline-block;background:var(--sunken);border-radius:5px;padding:0 6px;font-size:11.5px;color:var(--text-2);
-    margin:1px 0;font-family:var(--mono)}
-  td .lnk{color:var(--accent);word-break:break-all;font-size:12px;font-family:var(--mono);text-decoration:none}
-  td .lnk:hover{text-decoration:underline}
-  .hist-scroll{max-height:520px;overflow:auto;border-radius:0 0 var(--r-card) var(--r-card)}
+  .hcols,.hrow{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr) 120px;gap:16px;padding:12px 24px;align-items:start}
+  .hcols{font-size:12px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding-top:10px;padding-bottom:10px}
+  .hlist{list-style:none;margin:0;padding:0;max-height:560px;overflow:auto}
+  .hrow{border-bottom:1px solid var(--line);transition:background-color .15s var(--ease)}
+  .hrow:last-child{border-bottom:none}
+  .hrow:hover{background:var(--surface-2)}
+  .h-main{display:flex;align-items:center;gap:4px;min-width:0}
+  .h-short{font-family:var(--mono);font-size:13.5px;font-weight:500;color:var(--accent);text-decoration:none;border-radius:4px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .h-short:hover{text-decoration:underline}
+  .h-full{display:flex;align-items:center;gap:2px;min-width:0;margin-top:2px}
+  .h-full span{font-family:var(--mono);font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .h-full .copybtn{width:24px;height:24px}
+  .h-full .copybtn svg.i{width:13px;height:13px}
+  .h-camp strong{display:block;font-weight:500;font-size:13.5px;overflow-wrap:anywhere}
+  .h-camp span{font-size:12.5px;color:var(--muted)}
+  .h-src{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:12px;color:var(--muted)}
+  .tag{display:inline-block;background:var(--sunken);border-radius:5px;padding:1px 6px;font-size:12px;color:var(--text-2);font-family:var(--mono)}
+  .tag.soft{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  .h-src svg.i{width:12px;height:12px;color:var(--faint)}
+  .h-meta{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+  .h-meta b{display:block;font-weight:400;color:var(--text-2)}
+  .hempty{color:var(--muted);font-size:13px;text-align:center;padding:24px 12px}
 
-  .foot{max-width:1200px;margin:16px auto 0;padding:0 24px;color:var(--faint);font-size:12px;text-align:center;font-variant-numeric:tabular-nums}
+  .foot{max-width:1200px;margin:16px auto 0;padding:0 24px;color:var(--muted);font-size:12px;text-align:center;font-variant-numeric:tabular-nums}
 
-  /* ---------- toast, messages ---------- */
+  /* ---------- toast ---------- */
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--ink);
-    color:var(--surface);padding:10px 16px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;
+    color:#fbfbfa;padding:10px 16px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;display:flex;gap:8px;align-items:center;
     transition:opacity .2s var(--ease),transform .2s var(--ease);z-index:50;box-shadow:0 8px 24px rgba(27,34,36,.18)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .toast.err{background:var(--err)}
-  .msg{font-size:13px;padding:10px 12px;border-radius:var(--r-ctl);margin-top:12px;display:none}
-  .msg.err{display:block;background:var(--err-soft);color:var(--err);border:1px solid rgba(163,58,46,.18)}
-  .spin{width:14px;height:14px;border:2px solid rgba(251,251,250,.4);border-top-color:var(--surface);border-radius:50%;
+  .spin{width:14px;height:14px;border:2px solid rgba(251,251,250,.4);border-top-color:#fbfbfa;border-radius:50%;
     animation:sp .7s linear infinite;display:inline-block}
   @keyframes sp{to{transform:rotate(360deg)}}
 
-  /* ---------- ecran prenom ---------- */
-  .gate{position:fixed;inset:0;background:rgba(27,34,36,.42);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:100;
-    display:grid;place-items:center;padding:20px}
-  .gate.hide{display:none}
-  .gate-card{background:var(--surface);border-radius:16px;box-shadow:0 24px 64px rgba(27,34,36,.22);max-width:400px;width:100%;padding:32px 28px 28px}
-  .gate-card .em{width:40px;height:40px;border-radius:10px;background:var(--accent);color:var(--surface);display:grid;place-items:center;margin-bottom:16px}
-  .gate-card .em svg.i{width:20px;height:20px;stroke-width:2}
-  .gate-card h2{margin:0 0 8px;font-size:19px;font-weight:600;letter-spacing:-.01em}
-  .gate-card p{margin:0 0 20px;color:var(--text-2);font-size:13.5px}
-  .gate-card input{margin-bottom:12px}
-
   /* ---------- responsive ---------- */
-  @media(max-width:900px){
-    .grid{grid-template-columns:1fr}
+  @media(max-width:960px){
+    .grid{grid-template-columns:minmax(0,1fr)}
+    .out{position:static}
   }
   @media(max-width:600px){
     body{font-size:15px}
     .top-in{padding:10px 16px;gap:10px}
     .top .sub{display:none}
-    .who label{display:none}
-    .who input{width:120px;height:36px}
-    main{padding:16px 12px 40px}
+    main{padding:12px 12px 40px}
     .grid{gap:12px}
     .card-h{padding:14px 16px;min-height:52px}
     .card-b{padding:16px}
-    .row2{grid-template-columns:1fr;gap:0}
-    .row2 .field{margin-bottom:20px}
+    .row2{grid-template-columns:1fr;gap:16px}
     select,input[type=text],input[type=url]{height:44px;font-size:16px}
-    .actions{gap:12px}
-    .actions .btn.primary{margin-left:0;width:100%;height:44px}
+    .sign input{height:40px;width:auto;flex:1}
+    .sign{flex:1 1 100%}
+    details.custom summary .hint{display:none}
+    .submit{position:sticky;bottom:0;z-index:5;background:var(--surface);margin:16px -16px -16px;padding:12px 16px 14px;
+      border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card);box-shadow:0 -6px 16px rgba(27,34,36,.06)}
+    .go{flex-direction:column;align-items:stretch;gap:8px}
+    .go .btn.primary{width:100%;height:48px}
+    .kbd-hint{display:none}
+    .hl-url{font-size:18px}
+    .hl-row{flex-direction:column;align-items:stretch}
+    .hl-row .btn.primary{width:100%}
+    .qrblock{grid-template-columns:1fr;justify-items:center;text-align:center}
+    .qrside{align-items:center}
+    .qr-actions{justify-content:center}
+    #qrCanvas{width:200px;height:200px}
     .qorow{gap:8px}
     .qolbl{width:auto;flex-basis:100%}
     .qorow > .seg{flex:1}
@@ -239,22 +299,11 @@
     .hist{margin-top:12px}
     .hist-tools{padding:12px 16px}
     .hist-tools input,.hist-tools select{min-width:0;flex:1 1 100%}
-    .hist-scroll{max-height:none}
-    table,tbody,tr,td{display:block;width:100%}
-    thead{display:none}
-    tbody tr{padding:12px 16px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
-    tbody tr:last-child{border-bottom:none}
-    td,td:first-child,td:last-child{padding:0;border:none}
-    td::before{display:block;font-family:var(--font);font-size:11.5px;color:var(--faint)}
-    td:nth-child(1){grid-column:1/-1;order:-1}
-    td:nth-child(5){grid-column:1/-1;order:1}
-    td:nth-child(2)::before{content:"Marque"}
-    td:nth-child(3)::before{content:"Source / support"}
-    td:nth-child(4)::before{content:"Campagne"}
-    td:nth-child(5)::before{content:"Lien"}
-    td:nth-child(6)::before{content:"Par"}
-    td[colspan]{grid-column:1/-1}
-    td[colspan]::before{content:none}
+    .hcols{display:none}
+    .hlist{max-height:none}
+    .hrow{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:14px 16px}
+    .h-link{grid-column:1/-1}
+    .h-meta{text-align:right}
     .foot{padding:0 16px}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none !important;animation-duration:.01ms !important}}
@@ -264,22 +313,17 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
   <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
   <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></symbol>
   <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
   <symbol id="i-undo" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M2 14h4"/><path d="M10 8h4"/><path d="M18 16h4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></symbol>
   <symbol id="i-qr" viewBox="0 0 24 24"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></symbol>
 </svg>
-<div class="gate hide" id="gate">
-  <div class="gate-card">
-    <div class="em"><svg class="i"><use href="#i-link"/></svg></div>
-    <h2>Créateur d'URL trackées</h2>
-    <p>Indique ton prénom pour signer les liens que tu crées. Il reste mémorisé sur cet appareil.</p>
-    <input id="gateName" type="text" placeholder="Ton prénom" autocomplete="off">
-    <button class="btn primary block" id="gateBtn">Commencer</button>
-    <div class="msg" id="gateMsg"></div>
-  </div>
-</div>
 <header class="top">
   <div class="top-in">
     <span class="brandmark"><svg class="i"><use href="#i-link"/></svg></span>
@@ -287,192 +331,227 @@
       <h1>Créateur d'URL trackées</h1>
       <div class="sub">Groupe Tisserin · UTM, lien court et QR code</div>
     </div>
-    <div class="who">
-      <label for="who">Créé par <span class="req">*</span></label>
-      <input id="who" type="text" placeholder="Ton prénom" autocomplete="off">
-    </div>
+    <a class="jump" href="#histTitle">Historique</a>
   </div>
 </header>
 
 <main>
   <div class="grid">
-    <!-- ================= BUILDER ================= -->
-    <section class="card">
-      <div class="card-h"><div><h2>Construire le lien</h2><div class="desc">Les valeurs sont normalisées en minuscules sans accents</div></div></div>
-      <div class="card-b">
+    <!-- ================= FORMULAIRE ================= -->
+    <section class="card" aria-labelledby="bTitle">
+      <div class="card-h"><div><h2 id="bTitle">Nouveau lien</h2><div class="desc">Les valeurs sont normalisées en minuscules, sans accents</div></div></div>
+      <form class="card-b" id="form" novalidate>
 
-        <div class="field">
-          <label for="brand">Marque <span class="req">*</span></label>
-          <select id="brand"></select>
-        </div>
-
-        <div class="field">
-          <label for="dest">URL de destination <span class="req">*</span> <span class="hint">la page où tu envoies les gens</span></label>
-          <input id="dest" type="text" inputmode="url" placeholder="https://..." spellcheck="false">
-        </div>
-
-        <div class="row2">
+        <fieldset class="grp">
+          <legend class="sr">Campagne et destination</legend>
           <div class="field">
-            <label for="source">Source <span class="req">*</span> <span class="hint">d'où vient le clic</span></label>
-            <select id="source"></select>
-            <input id="sourceOther" type="text" placeholder="autre source (ex. spotify)" style="display:none;margin-top:8px">
+            <label for="brand">Marque <span class="req" aria-hidden="true">*</span></label>
+            <select id="brand" required aria-describedby="err-brand"></select>
+            <div class="ferr" id="err-brand"></div>
           </div>
           <div class="field">
-            <label for="medium">Support <span class="req">*</span> <span class="hint">le format</span></label>
-            <select id="medium"></select>
-            <input id="mediumOther" type="text" placeholder="autre support" style="display:none;margin-top:8px">
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="campaign">Campagne / programme <span class="req">*</span></label>
-          <input id="campaign" type="text" list="programs" placeholder="ex. osmose" spellcheck="false" autocomplete="off">
-          <datalist id="programs"></datalist>
-        </div>
-
-        <div class="row2">
-          <div class="field">
-            <label for="content">Détail <span class="hint">optionnel</span></label>
-            <input id="content" type="text" placeholder="ex. prospecting, panneau_2m2" spellcheck="false" autocomplete="off">
-            <div class="chips" id="contentChips"></div>
+            <label for="campaign">Programme ou campagne <span class="req" aria-hidden="true">*</span></label>
+            <input id="campaign" type="text" list="programs" placeholder="ex. Osmose" spellcheck="false" autocomplete="off" required aria-describedby="err-campaign campNote">
+            <datalist id="programs"></datalist>
+            <div class="fnote" id="campNote" hidden></div>
+            <div class="ferr" id="err-campaign"></div>
           </div>
           <div class="field">
-            <label for="term">Mot-clé <span class="hint">optionnel</span></label>
-            <input id="term" type="text" placeholder="ex. appartement_neuf" spellcheck="false" autocomplete="off">
+            <label for="dest">URL de destination <span class="req" aria-hidden="true">*</span> <span class="hint">la page où arrivent les gens</span></label>
+            <input id="dest" type="url" inputmode="url" placeholder="https://..." spellcheck="false" autocomplete="off" required aria-describedby="err-dest destNote">
+            <div class="fnote" id="destNote" hidden></div>
+            <div class="ferr" id="err-dest"></div>
+          </div>
+        </fieldset>
+
+        <fieldset class="grp">
+          <legend class="sr">Canal</legend>
+          <div class="row2">
+            <div class="field">
+              <label for="source">Source <span class="req" aria-hidden="true">*</span> <span class="hint">d'où vient le clic</span></label>
+              <select id="source" required aria-describedby="err-source"></select>
+              <input id="sourceOther" type="text" placeholder="autre source (ex. spotify)" aria-label="Autre source" style="display:none;margin-top:8px">
+              <div class="ferr" id="err-source"></div>
+            </div>
+            <div class="field">
+              <label for="medium">Support <span class="req" aria-hidden="true">*</span> <span class="hint">le format</span></label>
+              <select id="medium" required aria-describedby="err-medium"></select>
+              <input id="mediumOther" type="text" placeholder="autre support" aria-label="Autre support" style="display:none;margin-top:8px">
+              <div class="ferr" id="err-medium"></div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="grp grp-opt">
+          <legend>Précisions facultatives</legend>
+          <div class="row2">
+            <div class="field">
+              <label for="content">Détail</label>
+              <input id="content" type="text" placeholder="ex. prospecting, panneau_2m2" spellcheck="false" autocomplete="off">
+              <div class="chips" id="contentChips"></div>
+            </div>
+            <div class="field">
+              <label for="term">Mot-clé</label>
+              <input id="term" type="text" placeholder="ex. appartement_neuf" spellcheck="false" autocomplete="off">
+            </div>
+          </div>
+        </fieldset>
+
+          <div class="opts">
+            <div class="sign">
+              <label for="who">Signé par <span class="req" aria-hidden="true">*</span></label>
+              <input id="who" type="text" placeholder="Ton prénom" autocomplete="given-name" required aria-describedby="err-who">
+            </div>
+            <label class="toggle"><input type="checkbox" id="wantShort"> Lien court Bitly</label>
+          </div>
+          <div class="ferr" id="err-who"></div>
+        <div class="submit">
+          <div class="go">
+            <button class="btn primary" type="button" id="genBtn" aria-describedby="reason">Générer le lien</button>
+            <div class="reason" id="reason" aria-live="polite"></div>
           </div>
         </div>
-
-        <div class="field">
-          <label>Aperçu du lien</label>
-          <div class="preview" id="preview"><span class="empty">Remplis les champs ci-dessus</span></div>
-        </div>
-
-        <div class="actions">
-          <label class="toggle"><input type="checkbox" id="wantShort"> Lien court Bitly</label>
-          <button class="btn primary" id="genBtn">Générer et enregistrer</button>
-        </div>
-        <div class="msg" id="formMsg"></div>
-      </div>
+      </form>
     </section>
 
-    <!-- ================= RESULT + QR ================= -->
-    <section class="card">
-      <div class="card-h"><div><h2>Ton lien</h2><div class="desc">Lien complet, lien court et QR code</div></div></div>
+    <!-- ================= RESULTAT ================= -->
+    <section class="card out" id="outCard" aria-labelledby="oTitle">
+      <div class="card-h">
+        <h2 id="oTitle">Ton lien</h2>
+        <div class="right"><button class="btn sm" type="button" id="newBtn" hidden><svg class="i"><use href="#i-plus"/></svg>Nouveau lien</button></div>
+      </div>
       <div class="card-b">
-        <div class="empty" id="resEmpty">Le lien généré, son raccourci Bitly et le QR code apparaîtront ici.</div>
-        <div class="result" id="result">
-          <div class="res-line">
-            <span class="lbl">Complet</span>
-            <span class="val mono" id="outFull"></span>
-            <button class="copybtn" data-copy="full" title="Copier le lien complet" aria-label="Copier le lien complet"><svg class="i"><use href="#i-copy"/></svg></button>
+        <div class="wait" id="waitState">
+          <div class="wait-box">
+            <span class="qrghost"><svg class="i"><use href="#i-qr"/></svg></span>
+            <div><strong>Pas encore de lien</strong>
+              <p>Remplis le formulaire puis génère. Tu obtiendras ici le lien court, le lien complet et le QR code qui pointe vers le lien court.</p></div>
           </div>
-          <div class="res-line" id="shortLine" style="display:none">
-            <span class="lbl">Court</span>
-            <span class="val"><a id="outShort" target="_blank" rel="noopener"></a></span>
-            <button class="copybtn" data-copy="short" title="Copier le lien court" aria-label="Copier le lien court"><svg class="i"><use href="#i-copy"/></svg></button>
+          <div>
+            <div class="pv-label">Aperçu du lien complet</div>
+            <div class="preview" id="preview"><span class="pempty">Choisis une marque pour commencer</span></div>
           </div>
-          <div class="qrwrap">
-            <div class="qrstage"><canvas id="qrCanvas"></canvas></div>
-            <div class="qr-actions">
-              <select id="qrSize" aria-label="Taille du PNG">
-                <option value="8">Taille moyenne</option>
-                <option value="14" selected>Grande (print)</option>
-                <option value="24">Très grande</option>
-              </select>
-              <button class="btn sm" id="qrDownload"><svg class="i"><use href="#i-download"/></svg>PNG</button>
-              <button class="btn sm" id="qrDownloadSvg"><svg class="i"><use href="#i-download"/></svg>SVG print</button>
+        </div>
+
+        <div id="result" hidden>
+          <div class="stale" id="stale" hidden><span>Les champs ont changé depuis la génération : ce lien et ce QR correspondent à la version précédente.</span>
+            <button class="btn sm" type="button" id="staleBtn">Générer le nouveau lien</button></div>
+          <div class="msg" id="resMsg" role="alert"></div>
+          <div class="hero">
+            <div class="hl-label" id="mainLabel">Lien court</div>
+            <div class="hl-row">
+              <a class="hl-url" id="outMain" target="_blank" rel="noopener"></a>
+              <button class="btn primary" type="button" id="copyMain"><svg class="i ic-copy"><use href="#i-copy"/></svg><svg class="i ic-ok"><use href="#i-check"/></svg><span class="lbl">Copier</span></button>
             </div>
-            <div class="hint" id="qrWarn" style="display:none"></div>
-            <div class="qropts">
-              <div class="qorow">
-                <span class="qolbl">Réseau</span>
-                <div class="presets" id="qrPresets"></div>
+            <div class="fullrow" id="fullRow">
+              <span class="fl-label">Lien complet</span>
+              <button class="fl-val" type="button" id="outFull" title="Afficher en entier" aria-expanded="false"></button>
+              <button class="btn sm" type="button" id="copyFull"><svg class="i ic-copy"><use href="#i-copy"/></svg><svg class="i ic-ok"><use href="#i-check"/></svg><span class="lbl">Copier</span></button>
+            </div>
+          </div>
+
+          <div class="qrblock">
+            <div class="qrstage"><canvas id="qrCanvas" role="img" aria-label="QR code du lien"></canvas></div>
+            <div class="qrside">
+              <h3>QR code</h3>
+              <p class="qrsub" id="qrTargetNote"></p>
+              <div class="qr-actions">
+                <select id="qrSize" aria-label="Taille du PNG">
+                  <option value="8">PNG moyen</option>
+                  <option value="14" selected>PNG grand (print)</option>
+                  <option value="24">PNG très grand</option>
+                </select>
+                <button class="btn sm" type="button" id="qrDownload"><svg class="i"><use href="#i-download"/></svg>PNG</button>
+                <button class="btn sm" type="button" id="qrDownloadSvg"><svg class="i"><use href="#i-download"/></svg>SVG print</button>
               </div>
-              <div class="qorow">
-                <span class="qolbl">Couleur</span>
-                <div class="swatches" id="qrSwatches"></div>
-                <input type="color" id="qrColor" value="#000000" title="Couleur du code">
-                <span class="hint" id="qrGradArrow" style="display:none">→</span>
-                <input type="color" id="qrColor2" value="#457275" title="2e couleur du dégradé" style="display:none">
-              </div>
-              <div class="qorow">
-                <span class="qolbl">Dégradé</span>
-                <div class="seg" id="qrGrad">
-                  <button type="button" data-v="none">Aucun</button>
-                  <button type="button" data-v="linear">Diagonal</button>
-                  <button type="button" data-v="radial">Radial</button>
-                </div>
-              </div>
-              <div class="qorow">
-                <span class="qolbl">Modules</span>
-                <div class="seg" id="qrMod">
-                  <button type="button" data-v="square">Carré</button>
-                  <button type="button" data-v="rounded">Arrondi</button>
-                  <button type="button" data-v="dots">Points</button>
-                </div>
-              </div>
-              <div class="qorow">
-                <span class="qolbl">Coins</span>
-                <div class="seg" id="qrEye">
-                  <button type="button" data-v="square">Carré</button>
-                  <button type="button" data-v="rounded">Arrondi</button>
-                  <button type="button" data-v="circle">Cercle</button>
-                </div>
-                <input type="color" id="qrEyeColor" title="Couleur des coins">
-                <button class="btn sm ghost" id="qrEyeReset" title="Remettre la couleur du code" aria-label="Remettre la couleur du code" style="display:none"><svg class="i"><use href="#i-undo"/></svg></button>
-              </div>
-              <div class="qorow">
-                <span class="qolbl">Fond</span>
-                <div class="seg" id="qrBg">
-                  <button type="button" data-v="#ffffff">Blanc</button>
-                  <button type="button" data-v="transparent">Transparent</button>
-                </div>
-                <input type="color" id="qrBgColor" value="#ffffff" title="Fond personnalisé">
-              </div>
-              <div class="qorow">
-                <span class="qolbl">Logo</span>
-                <button class="btn sm" id="qrLogoBtn"><svg class="i"><use href="#i-upload"/></svg>Importer</button>
-                <span id="qrLogoName" class="hint"></span>
-                <button class="btn sm ghost" id="qrLogoClear" style="display:none">Retirer</button>
-                <input type="file" id="qrLogoFile" accept="image/*" style="display:none">
-              </div>
-              <div class="qorow" id="qrLogoSizeRow" style="display:none">
-                <span class="qolbl">Taille</span>
-                <input type="range" id="qrLogoScale" min="12" max="24" step="1">
-                <span class="hint" id="qrLogoScaleVal"></span>
-                <label class="toggle" style="font-size:12.5px;margin-left:8px"><input type="checkbox" id="qrLogoPad"> pastille</label>
+              <div class="hint" id="qrWarn" style="display:none"></div>
+            </div>
+          </div>
+
+          <details class="custom" id="qrCustom">
+            <summary><svg class="i"><use href="#i-sliders"/></svg>Personnaliser le QR <span class="hint">réseau, couleurs, formes, logo</span><svg class="i chev"><use href="#i-chev"/></svg></summary>
+            <div class="qorow">
+              <span class="qolbl">Réseau</span>
+              <div class="presets" id="qrPresets"></div>
+            </div>
+            <div class="qorow">
+              <span class="qolbl">Couleur</span>
+              <div class="swatches" id="qrSwatches"></div>
+              <input type="color" id="qrColor" value="#000000" title="Couleur du code" aria-label="Couleur du code">
+              <span class="hint" id="qrGradArrow" style="display:none">→</span>
+              <input type="color" id="qrColor2" value="#457275" title="2e couleur du dégradé" aria-label="2e couleur du dégradé" style="display:none">
+            </div>
+            <div class="qorow">
+              <span class="qolbl">Dégradé</span>
+              <div class="seg" id="qrGrad">
+                <button type="button" data-v="none">Aucun</button>
+                <button type="button" data-v="linear">Diagonal</button>
+                <button type="button" data-v="radial">Radial</button>
               </div>
             </div>
-            <div class="qrnote">Le QR pointe vers le lien court s'il existe, sinon vers le lien complet. Le SVG garde une qualité infinie pour les grands formats (bâches, 4x3). Teste toujours un QR personnalisé avec ton téléphone avant l'impression.</div>
-          </div>
+            <div class="qorow">
+              <span class="qolbl">Modules</span>
+              <div class="seg" id="qrMod">
+                <button type="button" data-v="square">Carré</button>
+                <button type="button" data-v="rounded">Arrondi</button>
+                <button type="button" data-v="dots">Points</button>
+              </div>
+            </div>
+            <div class="qorow">
+              <span class="qolbl">Coins</span>
+              <div class="seg" id="qrEye">
+                <button type="button" data-v="square">Carré</button>
+                <button type="button" data-v="rounded">Arrondi</button>
+                <button type="button" data-v="circle">Cercle</button>
+              </div>
+              <input type="color" id="qrEyeColor" title="Couleur des coins" aria-label="Couleur des coins">
+              <button class="btn sm ghost" type="button" id="qrEyeReset" title="Remettre la couleur du code" aria-label="Remettre la couleur du code" style="display:none"><svg class="i"><use href="#i-undo"/></svg></button>
+            </div>
+            <div class="qorow">
+              <span class="qolbl">Fond</span>
+              <div class="seg" id="qrBg">
+                <button type="button" data-v="#ffffff">Blanc</button>
+                <button type="button" data-v="transparent">Transparent</button>
+              </div>
+              <input type="color" id="qrBgColor" value="#ffffff" title="Fond personnalisé" aria-label="Fond personnalisé">
+            </div>
+            <div class="qorow">
+              <span class="qolbl">Logo</span>
+              <button class="btn sm" type="button" id="qrLogoBtn"><svg class="i"><use href="#i-upload"/></svg>Importer</button>
+              <span id="qrLogoName" class="hint"></span>
+              <button class="btn sm ghost" type="button" id="qrLogoClear" style="display:none">Retirer</button>
+              <input type="file" id="qrLogoFile" accept="image/*" style="display:none">
+            </div>
+            <div class="qorow" id="qrLogoSizeRow" style="display:none">
+              <span class="qolbl">Taille</span>
+              <input type="range" id="qrLogoScale" min="12" max="24" step="1" aria-label="Taille du logo">
+              <span class="hint" id="qrLogoScaleVal"></span>
+              <label class="toggle" style="font-size:12.5px;margin-left:8px"><input type="checkbox" id="qrLogoPad"> pastille</label>
+            </div>
+          </details>
+          <div class="qrnote">Réglages mémorisés sur cet appareil. Le SVG garde une qualité infinie pour les grands formats (bâches, 4x3). Teste toujours un QR personnalisé avec ton téléphone avant l'impression.</div>
         </div>
       </div>
     </section>
   </div>
 
   <!-- ================= HISTORIQUE ================= -->
-  <section class="card hist">
-    <div class="card-h"><div><h2>Historique des liens</h2><div class="desc">Partagé par toute l'équipe</div></div>
-      <button class="btn sm" id="refreshHist" style="margin-left:auto"><svg class="i"><use href="#i-refresh"/></svg>Rafraîchir</button>
+  <section class="card hist" aria-labelledby="histTitle">
+    <div class="card-h"><div><h2 id="histTitle">Historique des liens</h2><div class="desc">Partagé par toute l'équipe</div></div>
+      <div class="right"><button class="btn sm" type="button" id="refreshHist"><svg class="i"><use href="#i-refresh"/></svg>Rafraîchir</button></div>
     </div>
     <div class="hist-tools">
-      <input id="histSearch" type="text" placeholder="Programme, source ou prénom" aria-label="Rechercher">
+      <input id="histSearch" type="text" placeholder="Programme, source ou prénom" aria-label="Rechercher dans l'historique">
       <select id="histBrand" aria-label="Filtrer par marque"><option value="">Toutes les marques</option></select>
     </div>
-    <div class="hist-scroll">
-      <table>
-        <thead><tr>
-          <th>Date</th><th>Marque</th><th>Source / support</th><th>Campagne</th><th>Lien</th><th>Par</th>
-        </tr></thead>
-        <tbody id="histBody"><tr><td colspan="6" class="empty">Chargement...</td></tr></tbody>
-      </table>
-    </div>
+    <div class="hcols" aria-hidden="true"><span>Lien</span><span>Campagne</span><span>Source et support</span><span style="text-align:right">Créé</span></div>
+    <ul class="hlist" id="histBody"><li class="hempty">Chargement...</li></ul>
   </section>
 
   <div class="foot">Outil interne Groupe Tisserin · les liens sont enregistrés dans Supabase · <span id="count"></span></div>
 </main>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="./qrcode.js"></script>
 <script>
 /* ============ CONFIG ============ */
@@ -559,27 +638,33 @@ function slugify(s){
     .replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");
 }
 const $ = id => document.getElementById(id);
-function toast(msg, isErr){const t=$("toast");t.textContent=msg;t.className="toast show"+(isErr?" err":"");setTimeout(()=>t.className="toast",2200);}
-async function copy(text){try{await navigator.clipboard.writeText(text);toast("Copié");}catch(e){toast("Copie impossible",true);}}
+const IC_CHECK='<svg class="i"><use href="#i-check"/></svg>';
+let toastTimer;
+function toast(msg,isErr){const t=$("toast");t.innerHTML=(isErr?"":IC_CHECK)+esc(msg);t.className="toast show"+(isErr?" err":"");
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.className="toast",2200);}
+function flash(btn){
+  if(!btn)return;btn.classList.add("done");const l=btn.querySelector(".lbl");
+  if(l){if(!l.dataset.o)l.dataset.o=l.textContent;l.textContent="Copié";}
+  if(!l){if(!btn.dataset.al)btn.dataset.al=btn.getAttribute("aria-label")||"";btn.setAttribute("aria-label","Copié");}
+  clearTimeout(btn._t);btn._t=setTimeout(()=>{btn.classList.remove("done");if(l)l.textContent=l.dataset.o;else btn.setAttribute("aria-label",btn.dataset.al);},1800);
+}
+async function copy(text,btn){
+  if(!text)return;
+  try{await navigator.clipboard.writeText(text);flash(btn);toast("Copié dans le presse-papiers");}
+  catch(e){toast("Copie impossible, sélectionne le lien à la main",true);}
+}
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function brandLabel(k){const b=BRANDS.find(x=>x.key===k);return b?b.label:k;}
+function noProto(u){return (u||"").replace(/^https?:\/\//,"");}
+const LS_WHO="utm_who", LS_SHORT="utm_want_short", LS_QROPEN="qr_custom_open";
 
-/* ============ INIT UI ============ */
-let lastBrandUrl = "";
+/* ============ INIT FORMULAIRE ============ */
 function initBrands(){
   const sel=$("brand");
   const ph=document.createElement("option");ph.value="";ph.textContent="Choisir une marque...";ph.disabled=true;ph.selected=true;sel.appendChild(ph);
   BRANDS.forEach(b=>{const o=document.createElement("option");o.value=b.key;o.textContent=b.label;o.dataset.url=b.url;sel.appendChild(o);});
-  // filtre marque historique
   const hb=$("histBrand");
   BRANDS.forEach(b=>{const o=document.createElement("option");o.value=b.key;o.textContent=b.label;hb.appendChild(o);});
-  applyBrand();
-}
-function applyBrand(){
-  const opt=$("brand").selectedOptions[0];
-  const url=(opt&&opt.dataset.url)||"";
-  const dest=$("dest");
-  // ne remplace la destination que si une marque est choisie ET champ vide ou = ancienne home marque
-  if(url){ if(!dest.value.trim() || dest.value.trim()===lastBrandUrl) dest.value=url; lastBrandUrl=url; }
-  updatePreview();
 }
 function initSources(){
   const sel=$("source");
@@ -597,29 +682,29 @@ function initMediums(){
   const sv=$("source").value;
   const sel=$("medium");sel.innerHTML="";
   $("sourceOther").style.display = sv==="__other__" ? "block":"none";
-  const ph=document.createElement("option");ph.value="";ph.textContent="Choisir un support...";ph.disabled=true;ph.selected=true;sel.appendChild(ph);
+  const ph=document.createElement("option");ph.value="";ph.textContent=sv?"Choisir un support...":"Choisis d'abord la source";ph.disabled=true;ph.selected=true;sel.appendChild(ph);
   let mediums=[];
   if(sv==="__other__"){mediums=Object.keys(M);}
   else if(sv){const src=findSource(sv);mediums=src?src.mediums:[];}
   mediums.forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=M[m]||m;sel.appendChild(o);});
   if(mediums.length){const other=document.createElement("option");other.value="__other__";other.textContent="+ Autre...";sel.appendChild(other);}
+  sel.disabled=!sv;
   onMediumChange();
 }
 function onMediumChange(){
-  const mv=$("medium").value;
-  $("mediumOther").style.display = mv==="__other__" ? "block":"none";
+  $("mediumOther").style.display = $("medium").value==="__other__" ? "block":"none";
   renderContentChips();
-  updatePreview();
+  refresh();
 }
 function renderContentChips(){
   const box=$("contentChips");box.innerHTML="";
   const sug=[...new Set([...(CONTENT_SUGGEST[getSource()]||[]),...(CONTENT_SUGGEST[getMedium()]||[])])];
-  sug.forEach(s=>{const c=document.createElement("span");c.className="chip";c.textContent=s;
-    c.onclick=()=>{$("content").value=s;updatePreview();};box.appendChild(c);});
+  sug.forEach(s=>{const c=document.createElement("button");c.type="button";c.className="chip";c.textContent=s;
+    c.onclick=()=>{$("content").value=s;refresh();};box.appendChild(c);});
 }
 function initPrograms(){
   const dl=$("programs");
-  PROGRAMS.forEach(p=>{const o=document.createElement("option");o.value=slugify(p);o.textContent=p;dl.appendChild(o);});
+  PROGRAMS.forEach(p=>{const o=document.createElement("option");o.value=p;dl.appendChild(o);});
 }
 
 /* ============ VALEURS COURANTES ============ */
@@ -651,20 +736,95 @@ function buildFinalUrl(v){
     return v.base_url+sep+qs;
   }
 }
+
+/* ============ DESTINATION AUTO (marque / fiche programme) ============ */
+let lastAutoUrl="", destOrigin="";
+function brandUrl(){const o=$("brand").selectedOptions[0];return (o&&o.dataset.url)||"";}
+function programLabel(slug){return PROGRAMS.find(p=>slugify(p)===slug)||slug;}
+function syncDest(){
+  const dest=$("dest"),cur=dest.value.trim();
+  const slug=slugify($("campaign").value);
+  const known=PROGRAM_URLS[slug];
+  // ne remplace la destination que si le champ est vide ou contient encore une valeur auto
+  if(!cur||cur===lastAutoUrl){
+    if(known){dest.value=known;lastAutoUrl=known;destOrigin="program";}
+    else if(brandUrl()){dest.value=brandUrl();lastAutoUrl=brandUrl();destOrigin="brand";}
+    else if(cur){destOrigin="user";}
+  }
+  renderNotes();
+}
+function renderNotes(){
+  const dn=$("destNote"),cur=$("dest").value.trim();
+  if(cur&&cur===lastAutoUrl&&destOrigin==="program"){
+    dn.className="fnote ok";dn.innerHTML=IC_CHECK+"<span>URL remplie depuis la fiche programme "+esc(programLabel(slugify($("campaign").value)))+".</span>";dn.hidden=false;
+  }else if(cur&&cur===lastAutoUrl&&destOrigin==="brand"){
+    dn.className="fnote";dn.innerHTML="<span>Page d'accueil de la marque par défaut. Colle l'adresse de la page précise si tu l'as.</span>";dn.hidden=false;
+  }else{dn.hidden=true;}
+  const cn=$("campNote"),raw=$("campaign").value.trim(),slug=slugify(raw);
+  if(slug&&slug!==raw){cn.className="fnote";cn.innerHTML="<span>Enregistré comme <code>"+esc(slug)+"</code></span>";cn.hidden=false;}
+  else cn.hidden=true;
+}
+
+/* ============ VALIDATION ============ */
+let touched=new Set(), attempted=false, busy=false, lastGenSig=null;
+function urlOk(s){try{const u=new URL(s);return (u.protocol==="https:"||u.protocol==="http:")&&u.hostname.includes(".");}catch(e){return false;}}
+function errors(){
+  const v=getVals(),e={};
+  if(!v.brand)e.brand="Choisis la marque.";
+  if(!v.utm_campaign)e.campaign="Indique le programme ou la campagne.";
+  if(!v.base_url)e.dest="Indique la page de destination.";
+  else if(!urlOk(v.base_url))e.dest="Adresse invalide : elle doit commencer par https:// (ex. https://nacarat.com/...).";
+  if(!$("source").value)e.source="Choisis la source.";
+  else if(!v.utm_source)e.source="Précise l'autre source.";
+  if(!$("medium").value)e.medium="Choisis le support.";
+  else if(!v.utm_medium)e.medium="Précise l'autre support.";
+  if(!$("who").value.trim())e.who="Indique ton prénom, il signe le lien dans l'historique.";
+  return e;
+}
+const SHORT_NAME={brand:"marque",campaign:"campagne",dest:"URL de destination",source:"source",medium:"support",who:"prénom"};
+const FIELD_INPUT={brand:"brand",campaign:"campaign",dest:"dest",source:"source",medium:"medium",who:"who"};
+function sig(){return JSON.stringify([getVals(),$("who").value.trim(),$("wantShort").checked]);}
+function refresh(){
+  const e=errors();
+  Object.keys(FIELD_INPUT).forEach(k=>{
+    const show=!!e[k]&&(attempted||touched.has(k));
+    const box=$("err-"+k);box.textContent=show?e[k]:"";box.classList.toggle("show",show);
+    const inp=$(FIELD_INPUT[k]);if(show)inp.setAttribute("aria-invalid","true");else inp.removeAttribute("aria-invalid");
+  });
+  updatePreview();
+  const keys=Object.keys(e), same=lastGenSig!==null&&sig()===lastGenSig;
+  const btn=$("genBtn"), r=$("reason");
+  btn.disabled=busy||keys.length>0||same;
+  r.classList.remove("ready");
+  if(busy){r.textContent="Création du lien en cours...";}
+  else if(keys.length){
+    const miss=keys.filter(k=>!(k==="dest"&&$("dest").value.trim())).map(k=>SHORT_NAME[k]);
+    const bad=e.dest&&$("dest").value.trim();
+    r.textContent=(miss.length?"À compléter : "+miss.join(", ")+".":"")+(bad?(miss.length?" ":"")+"L'URL de destination est invalide.":"");
+  }else if(same){r.textContent="Lien généré. Modifie un champ pour en créer un autre, ou clique sur Nouveau lien.";}
+  else{r.classList.add("ready");r.innerHTML="Prêt à générer<span class=\"kbd-hint\"> · <kbd>Ctrl</kbd> + <kbd>Entrée</kbd></span>";}
+  // resultat perime ?
+  const shown=!$("result").hidden;
+  $("stale").hidden=!(shown&&lastGenSig!==null&&!same&&!busy);
+  $("staleBtn").disabled=keys.length>0;
+}
+function focusFirstError(){
+  const e=errors();const k=Object.keys(FIELD_INPUT).find(x=>e[x]);
+  if(k){const el=k==="source"&&$("source").value==="__other__"?$("sourceOther"):k==="medium"&&$("medium").value==="__other__"?$("mediumOther"):$(FIELD_INPUT[k]);el.focus();}
+}
+
+/* ============ APERCU ============ */
 function updatePreview(){
-  let v=getVals();
-  // autofill destination si programme connu et champ vide ou = home marque
-  const known=PROGRAM_URLS[v.utm_campaign];
-  if(known){const dest=$("dest");if(!dest.value.trim()||dest.value.trim()===lastBrandUrl){dest.value=known;lastBrandUrl=known;v=getVals();}}
+  const v=getVals();
   const pv=$("preview");
-  if(!v.base_url){pv.innerHTML='<span class="empty">Ajoute une URL de destination</span>';return;}
-  const params=[["utm_source",v.utm_source||"?"],["utm_medium",v.utm_medium||"?"],["utm_campaign",v.utm_campaign||"?"]];
+  if(!v.base_url){pv.innerHTML='<span class="pempty">'+(v.brand?"Ajoute une URL de destination":"Choisis une marque pour commencer")+'</span>';return;}
+  const params=[["utm_source",v.utm_source],["utm_medium",v.utm_medium],["utm_campaign",v.utm_campaign]];
   if(v.utm_content)params.push(["utm_content",v.utm_content]);
   if(v.utm_term)params.push(["utm_term",v.utm_term]);
   const sep=v.base_url.includes("?")?"&":"?";
-  let html='<span class="base">'+esc(v.base_url)+'</span>';
+  let html='<span>'+esc(v.base_url)+'</span>';
   params.forEach((p,i)=>{
-    html+='<span class="k">'+(i===0?sep:"&")+p[0]+'=</span><span class="v">'+esc(p[1])+'</span>';
+    html+='<span class="k">'+(i===0?sep:"&")+p[0]+'=</span>'+(p[1]?'<span class="v">'+esc(p[1])+'</span>':'<span class="q">?</span>');
   });
   pv.innerHTML=html;
 }
@@ -672,20 +832,14 @@ function updatePreview(){
 /* ============ GÉNÉRER + ENREGISTRER ============ */
 let currentLink = {full:"", short:""};
 async function generate(){
+  attempted=true;refresh();
+  if(Object.keys(errors()).length){focusFirstError();return;}
+  if(busy||(lastGenSig!==null&&sig()===lastGenSig))return;
   const v=getVals();
-  const msg=$("formMsg");msg.className="msg";
-  const miss=[];
-  if(!($("who").value||"").trim())miss.push("ton prénom");
-  if(!v.brand)miss.push("la marque");
-  if(!v.base_url)miss.push("l'URL de destination");
-  if(!v.utm_source)miss.push("la source");
-  if(!v.utm_medium)miss.push("le support");
-  if(!v.utm_campaign)miss.push("la campagne");
-  if(miss.length){msg.className="msg err";msg.textContent="Il manque : "+miss.join(", ")+".";return;}
-
   const full=buildFinalUrl(v);
-  const btn=$("genBtn");btn.disabled=true;const old=btn.innerHTML;btn.innerHTML='<span class="spin"></span> Génération...';
-
+  const s=sig();
+  const btn=$("genBtn");busy=true;refresh();btn.innerHTML='<span class="spin"></span> Génération...';
+  $("resMsg").className="msg";
   const payload={...v, final_url:full, want_short:$("wantShort").checked, created_by:$("who").value.trim()||null,
     utm_content:v.utm_content||null, utm_term:v.utm_term||null};
   try{
@@ -693,22 +847,41 @@ async function generate(){
     const data=await r.json();
     if(!r.ok||data.error){throw new Error(data.error||("HTTP "+r.status));}
     currentLink={full:full, short:data.short_url||""};
+    lastGenSig=s;
     showResult();
     toast("Lien enregistré");
     loadHistory();
   }catch(e){
-    msg.className="msg err";msg.textContent="Erreur : "+e.message+". Le lien complet reste utilisable ci-dessous.";
-    currentLink={full:full, short:""};showResult();
-  }finally{btn.disabled=false;btn.innerHTML=old;}
+    currentLink={full:full, short:""};lastGenSig=null;showResult();
+    const m=$("resMsg");m.className="msg err";m.textContent="Le lien n'a pas pu être enregistré ("+e.message+"). Le lien complet ci-dessous reste utilisable.";
+  }finally{
+    busy=false;btn.textContent="Générer le lien";refresh();
+    if(window.matchMedia("(max-width:960px)").matches)$("outCard").scrollIntoView({behavior:"smooth",block:"start"});
+    $("copyMain").focus({preventScroll:true});
+  }
 }
 function showResult(){
-  $("resEmpty").style.display="none";
-  $("result").classList.add("show");
-  $("outFull").textContent=currentLink.full;
-  const sl=$("shortLine");
-  if(currentLink.short){sl.style.display="flex";const a=$("outShort");a.href=currentLink.short;a.textContent=currentLink.short;}
-  else{sl.style.display="none";}
-  loadBrandLogo();renderQR();
+  $("waitState").hidden=true;$("result").hidden=false;$("newBtn").hidden=false;
+  const hasShort=!!currentLink.short;
+  const main=hasShort?currentLink.short:currentLink.full;
+  $("mainLabel").textContent=hasShort?"Lien court":"Lien complet";
+  const a=$("outMain");a.href=main;a.textContent=hasShort?noProto(main):main;a.classList.toggle("long",!hasShort);
+  $("copyMain").setAttribute("aria-label",hasShort?"Copier le lien court":"Copier le lien complet");
+  $("fullRow").hidden=!hasShort;
+  const f=$("outFull");f.textContent=currentLink.full;f.classList.remove("open");f.setAttribute("aria-expanded","false");
+  $("qrTargetNote").textContent=hasShort?"Pointe vers le lien court "+noProto(currentLink.short)+".":"Pointe vers le lien complet (pas de lien court).";
+  $("copyMain").classList.remove("done");
+  loadBrandLogo();renderQR();refresh();
+}
+function newLink(){
+  ["campaign","content","term","sourceOther","mediumOther"].forEach(id=>$(id).value="");
+  $("source").selectedIndex=0;initMediums();
+  $("dest").value="";lastAutoUrl="";destOrigin="";syncDest();
+  touched.clear();attempted=false;lastGenSig=null;currentLink={full:"",short:""};
+  $("result").hidden=true;$("waitState").hidden=false;$("newBtn").hidden=true;$("resMsg").className="msg";
+  refresh();
+  $("form").scrollIntoView({behavior:"smooth",block:"start"});
+  $("campaign").focus({preventScroll:true});
 }
 
 /* ============ QR ============ */
@@ -994,64 +1167,68 @@ async function loadHistory(){
     const r=await fetch(url);const rows=await r.json();
     if(!Array.isArray(rows)){throw new Error(rows.error||"réponse invalide");}
     $("count").textContent=rows.length+" lien"+(rows.length>1?"s":"")+" affiché"+(rows.length>1?"s":"");
-    if(!rows.length){body.innerHTML='<tr><td colspan="6" class="empty">Aucun lien pour le moment.</td></tr>';return;}
+    if(!rows.length){body.innerHTML='<li class="hempty">'+(q||brand?"Aucun lien ne correspond à ce filtre.":"Aucun lien pour le moment.")+'</li>';return;}
     body.innerHTML=rows.map(rowHtml).join("");
-    body.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>copy(b.dataset.c));
+    body.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>copy(b.dataset.c,b));
   }catch(e){
-    body.innerHTML='<tr><td colspan="6" class="empty">Erreur de chargement : '+e.message+'</td></tr>';
+    body.innerHTML='<li class="hempty">Erreur de chargement : '+esc(e.message)+'</li>';
   }
 }
-function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
-function brandLabel(k){const b=BRANDS.find(x=>x.key===k);return b?b.label:k;}
 function rowHtml(x){
   const d=new Date(x.created_at);
-  const date=d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"2-digit"})+" "+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
-  const link=x.short_url||x.final_url;
-  const linkShow=x.short_url?x.short_url:x.final_url;
-  return '<tr>'+
-    '<td style="white-space:nowrap;color:var(--muted)">'+date+'</td>'+
-    '<td>'+esc(brandLabel(x.brand))+'</td>'+
-    '<td><span class="tag">'+esc(x.utm_source)+'</span><br><span class="tag">'+esc(x.utm_medium)+'</span></td>'+
-    '<td>'+esc(x.utm_campaign)+(x.utm_content?'<br><span class="tag">'+esc(x.utm_content)+'</span>':'')+'</td>'+
-    '<td><a class="lnk" href="'+esc(x.final_url)+'" target="_blank" rel="noopener">'+esc(linkShow)+'</a> '+
-      '<button class="copybtn" data-c="'+esc(link)+'" title="Copier" aria-label="Copier"><svg class="i"><use href="#i-copy"/></svg></button></td>'+
-    '<td style="color:var(--muted)">'+esc(x.created_by||"")+'</td>'+
-  '</tr>';
+  const date=d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"2-digit"});
+  const time=d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  const main=x.short_url||x.final_url;
+  const cp='<svg class="i ic-copy"><use href="#i-copy"/></svg><svg class="i ic-ok"><use href="#i-check"/></svg>';
+  const full=x.short_url?'<div class="h-full"><span title="'+esc(x.final_url)+'">'+esc(noProto(x.final_url))+'</span>'+
+      '<button class="copybtn" type="button" data-c="'+esc(x.final_url)+'" aria-label="Copier le lien complet" title="Copier le lien complet">'+cp+'</button></div>':'';
+  return '<li class="hrow">'+
+    '<div class="h-link"><div class="h-main"><a class="h-short" href="'+esc(main)+'" target="_blank" rel="noopener" title="'+esc(main)+'">'+esc(noProto(main))+'</a>'+
+      '<button class="copybtn" type="button" data-c="'+esc(main)+'" aria-label="Copier '+(x.short_url?"le lien court":"le lien")+'" title="Copier">'+cp+'</button></div>'+full+'</div>'+
+    '<div class="h-camp"><strong>'+esc(x.utm_campaign)+'</strong><span>'+esc(brandLabel(x.brand))+'</span></div>'+
+    '<div class="h-src"><span class="tag">'+esc(x.utm_source)+'</span><svg class="i"><use href="#i-chev"/></svg><span class="tag">'+esc(x.utm_medium)+'</span>'+
+      (x.utm_content?'<span class="tag soft">'+esc(x.utm_content)+'</span>':'')+'</div>'+
+    '<div class="h-meta"><b>'+date+' '+time+'</b>'+esc(x.created_by||"")+'</div>'+
+  '</li>';
 }
 
 /* ============ ÉVÉNEMENTS ============ */
-$("brand").addEventListener("change",applyBrand);
-$("source").addEventListener("change",initMediums);
-$("medium").addEventListener("change",onMediumChange);
-["dest","campaign","content","term","sourceOther","mediumOther"].forEach(id=>$(id).addEventListener("input",updatePreview));
+$("form").addEventListener("submit",e=>{e.preventDefault();generate();});
+$("brand").addEventListener("change",()=>{touched.add("brand");syncDest();refresh();});
+$("source").addEventListener("change",()=>{touched.add("source");initMediums();});
+$("medium").addEventListener("change",()=>{touched.add("medium");onMediumChange();});
+$("campaign").addEventListener("input",()=>{syncDest();refresh();});
+$("dest").addEventListener("input",()=>{const c=$("dest").value.trim();if(c!==lastAutoUrl)destOrigin="user";renderNotes();refresh();});
+$("dest").addEventListener("blur",()=>{const d=$("dest"),c=d.value.trim();
+  if(c&&!/^[a-z]+:\/\//i.test(c)&&/^[\w-]+(\.[\w-]+)+/.test(c)){d.value="https://"+c;}refresh();});
+["content","term","sourceOther","mediumOther"].forEach(id=>$(id).addEventListener("input",()=>{if(id!=="term")renderContentChips();refresh();}));
+[["campaign","campaign"],["dest","dest"],["who","who"],["sourceOther","source"],["mediumOther","medium"]].forEach(([id,k])=>
+  $(id).addEventListener("blur",()=>{touched.add(k);refresh();}));
+$("who").addEventListener("input",()=>{localStorage.setItem(LS_WHO,$("who").value.trim());refresh();});
+$("wantShort").addEventListener("change",()=>{localStorage.setItem(LS_SHORT,$("wantShort").checked?"1":"0");refresh();});
 $("genBtn").addEventListener("click",generate);
+$("staleBtn").addEventListener("click",generate);
+$("newBtn").addEventListener("click",newLink);
+$("copyMain").addEventListener("click",e=>copy(currentLink.short||currentLink.full,e.currentTarget));
+$("copyFull").addEventListener("click",e=>copy(currentLink.full,e.currentTarget));
+$("outFull").addEventListener("click",e=>{const o=e.currentTarget.classList.toggle("open");e.currentTarget.setAttribute("aria-expanded",String(o));
+  e.currentTarget.title=o?"Replier":"Afficher en entier";});
+$("qrCustom").addEventListener("toggle",()=>localStorage.setItem(LS_QROPEN,$("qrCustom").open?"1":"0"));
 $("qrSize").addEventListener("change",renderQR);
 $("qrDownload").addEventListener("click",downloadQR);
 $("qrDownloadSvg").addEventListener("click",downloadSVG);
 $("refreshHist").addEventListener("click",loadHistory);
 $("histBrand").addEventListener("change",loadHistory);
 $("histSearch").addEventListener("input",()=>{clearTimeout(histTimer);histTimer=setTimeout(loadHistory,350);});
-document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>copy(b.dataset.copy==="short"?currentLink.short:currentLink.full));
-// mémoriser le prénom (persiste dans le navigateur, comme un cookie permanent)
-$("who").addEventListener("input",()=>localStorage.setItem("utm_who",$("who").value.trim()));
-
-/* ============ ÉCRAN D'ACCUEIL (prénom obligatoire, retenu ensuite) ============ */
-function initGate(){
-  const stored=(localStorage.getItem("utm_who")||"").trim();
-  if(stored){$("who").value=stored;return;}           // déjà connu -> pas d'écran
-  const g=$("gate");g.classList.remove("hide");
-  const submit=()=>{
-    const n=$("gateName").value.trim();
-    if(!n){const m=$("gateMsg");m.className="msg err";m.textContent="Entre ton prénom pour continuer.";return;}
-    localStorage.setItem("utm_who",n);$("who").value=n;g.classList.add("hide");
-  };
-  $("gateBtn").onclick=submit;
-  $("gateName").addEventListener("keydown",e=>{if(e.key==="Enter")submit();});
-  setTimeout(()=>$("gateName").focus(),60);
-}
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();generate();}});
 
 /* ============ BOOT ============ */
-initGate();initBrands();initSources();initPrograms();initQrControls();updatePreview();loadHistory();
+function initPrefs(){
+  $("who").value=(localStorage.getItem(LS_WHO)||"").trim();
+  $("wantShort").checked=(localStorage.getItem(LS_SHORT)||"1")==="1";
+  $("qrCustom").open=localStorage.getItem(LS_QROPEN)==="1";
+}
+initPrefs();initBrands();initSources();initPrograms();initQrControls();syncDest();refresh();loadHistory();
 </script>
 </body>
 </html>
