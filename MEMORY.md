@@ -5,6 +5,8 @@ Outil web interne (remplace `OneDrive/Créateur URL Trackées.xlsm`). Créé le 
 ## Hébergement
 - Repo GitHub : `louisssmrt/url-trackees` (public, GitHub Pages).
 - URL publique : https://louisssmrt.github.io/url-trackees/
+- **Miroir Cloudflare Pages (2026-11-10)** : https://url-trackees.pages.dev (projet `url-trackees`, compte CF perso, branche prod `main`). Deployer seulement `index.html` + `qrcode.js` depuis un dossier temporaire : `wrangler pages deploy <dossier> --project-name=url-trackees --branch=main --commit-dirty=true`. A chaque modif : push GitHub ET redeploiement CF, sinon les deux divergent.
+- CORS des Edge Functions : `Access-Control-Allow-Origin: *`, aucun filtrage d'origine (verifie depuis pages.dev le 2026-11-10).
 - Compte GitHub : `louisssmrt`. Identité git commits : Louis Moret / moret.louis123@gmail.com.
 
 ## Backend Supabase
@@ -90,3 +92,9 @@ echecs. jsQR est le bon juge.
 cd projets/OUTILS/CREATEUR-URL-TRACKEES
 git add -A && git commit -m "..." && git push
 ```
+
+## Refonte visuelle + Quend (2026-11-10)
+- Couche presentation refaite : rampe graphite teintee teal, accent `#3d6a6d`, Inter + JetBrains Mono, icones SVG (sprite `<symbol>` en haut du body), historique en cartes sous 600 px. Logique JS et IDs inchanges, test QR 48/48 OK apres refonte.
+- `Quend` ajoute a `PROGRAMS` (nom de ville tant que le nom commercial n'est pas fixe), pas d'URL dans `PROGRAM_URLS`.
+- `controle_livraison.py` sort PAS PRET sur ce fichier ("typologie T1 a T5" a cause du programme `Riv'Elegance T2`) : faux positif, outil interne.
+
